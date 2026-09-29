@@ -13,7 +13,10 @@ h3,h1{font-family:Cinzel,Georgia,serif;margin:0 0 6px;letter-spacing:.5px}
 #hud{left:10px;top:calc(10px + env(safe-area-inset-top,0px));width:210px}
 #log{left:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));width:min(430px,62vw);font-size:12px;line-height:1.5;background:#0c1018b0}
 #mm{right:10px;top:calc(10px + env(safe-area-inset-top,0px));padding:4px;line-height:0}
-#mm canvas{width:122px;height:122px;image-rendering:pixelated;border-radius:6px}
+#mm canvas{width:122px;height:122px;image-rendering:pixelated;border-radius:6px;cursor:pointer}
+#wmap{display:none;position:absolute;inset:0;background:#060810ee;z-index:4;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+#wmap canvas{image-rendering:pixelated;border:1px solid #ffffff25;border-radius:8px;max-width:92vw;max-height:78vh}
+#wmap .m{color:var(--mu);font-size:13px}
 #md{display:none;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:80vh;overflow:auto}
 .r{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #ffffff12}
 .m{color:var(--mu);font-size:12px;margin:4px 0}
@@ -30,6 +33,7 @@ button{cursor:pointer;background:#2a3550}button:hover:not(:disabled){background:
 <div id="mm" class="p"><canvas id="mmc" width="61" height="61"></canvas></div>
 <div id="log" class="p"></div>
 <div id="md" class="p"></div>
+<div id="wmap"><canvas id="wmc"></canvas><div class="m">Você é o ponto branco · cidades em dourado · clique para fechar</div></div>
 <div id="lgn"><div class="c">
 <h1>Crônicas de Westeros</h1><div class="s">Uma aventura solo entre a Muralha e o Rochedo</div>
 <input id="u" placeholder="Nome de usuário" maxlength="16" autocomplete="username">
@@ -175,6 +179,16 @@ function hud(){$('st').textContent=`Nível ${P.lvl} · ${Math.ceil(P.hp)}/${mh()
  for(let j=0;j<61;j++)for(let i=0;i<61;i++){mmc.fillStyle=MMC[tile(P.x-30+i,P.y-30+j)];mmc.fillRect(i,j,1,1)}
  mmc.fillStyle='#ffd24a';for(const t of TW){const i=t.x-P.x+30,j=t.y-P.y+30;if(i>=0&&i<61&&j>=0&&j<61)mmc.fillRect(i-1,j-1,3,3)}
  mmc.fillStyle='#f55';for(const m of mons){const i=m.x-P.x+30,j=m.y-P.y+30;if(i>=0&&i<61&&j>=0&&j<61)mmc.fillRect(i,j,1,1)}mmc.fillStyle='#fff';mmc.fillRect(29,29,3,3)}
+/* mapa mundi */
+const WX0=-45,WX1=45,WY0=-75,WY1=75,wmc=$('wmc');
+wmc.width=WX1-WX0+1;wmc.height=WY1-WY0+1;
+const wmctx=wmc.getContext('2d');
+function worldmap(){for(let j=WY0;j<=WY1;j++)for(let i=WX0;i<=WX1;i++){wmctx.fillStyle=MMC[gen(i,j)];wmctx.fillRect(i-WX0,j-WY0,1,1)}
+ wmctx.fillStyle='#ffd24a';for(const t of TW)wmctx.fillRect(t.x-WX0-1,t.y-WY0-1,3,3);
+ if(P){wmctx.fillStyle='#fff';wmctx.fillRect(P.x-WX0-1,P.y-WY0-1,3,3);
+  wmctx.strokeStyle='#fff';wmctx.lineWidth=1;wmctx.strokeRect(P.x-WX0-2.5,P.y-WY0-2.5,6,6)}}
+$('mm').onclick=()=>{if(!P)return;worldmap();$('wmap').style.display='flex'};
+$('wmap').onclick=()=>$('wmap').style.display='none';
 function rs(){cv.width=innerWidth;cv.height=innerHeight;cx.imageSmoothingEnabled=false}addEventListener('resize',rs);rs();
 let last=performance.now(),ht=0;
 function loop(n){const dt=Math.min(.05,(n-last)/1e3);last=n;if(P){if(!S)upd(dt);if(P){draw(dt);ht-=dt;if(ht<=0){ht=.25;hud()}}}else{cx.fillStyle='#0b0e14';cx.fillRect(0,0,cv.width,cv.height)}requestAnimationFrame(loop)}
