@@ -1,3 +1,5 @@
+### link https://gabriel-msv.github.io/westeros/
+
 # GDD — PROJETO RPG TOP-DOWN
 
 ### Documento Mestre de Design — versão 1.0
