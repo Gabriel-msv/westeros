@@ -2,58 +2,49 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Crônicas de Westeros</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<canvas id="g"></canvas>
+<div id="stage">
+  <canvas id="g"></canvas>
 
-<div id="hud" class="canva-ui">
-  <div class="hud-name"><span class="hud-label">NOME</span><b id="nm">PERSONAGEM</b></div>
-  <div class="hud-stat hud-def"><span>DEF</span><b id="ui-def">0</b></div>
-  <div class="hud-stat hud-atk"><span>ATK</span><b id="ui-atk">0</b></div>
-  <div class="hud-stat hud-hp"><span>HP</span><b id="ui-hp">0/0</b></div>
-  <div class="hud-equip hud-weapon"><span>ARMA</span><b id="ui-weapon">—</b></div>
-  <div class="hud-equip hud-clothes"><span>VESTIMENTA</span><b id="ui-clothes">—</b></div>
-  <div class="hud-equip hud-potions"><span>POÇÕES</span><b id="ui-potions">0</b></div>
-  <div class="hud-xp"><span>XP</span><b id="ui-xp">0/0</b></div>
-  <div class="hud-hpbar"><i id="hb"></i></div>
-  <div class="hud-xpbar"><i id="xb"></i></div>
-  <div id="st" aria-hidden="true"></div><div id="gd" aria-hidden="true"></div>
-  <div class="hud-extra"><span id="house-mark">•</span><span id="ui-gold">0</span><span id="ui-weight">0/100 kg</span><span id="ui-mount">A pé</span></div>
-  <button id="out">salvar e sair</button>
-</div>
+  <div id="hud">
+    <div class="bottom-frame"></div>
+    <div class="hud-name"><span>NOME</span><b id="nm">PERSONAGEM</b></div>
+    <div class="hud-def"><span>DEF</span><b id="ui-def">0</b></div>
+    <div class="hud-atk"><span>ATK</span><b id="ui-atk">0</b></div>
+    <div class="hud-hp"><span>HP</span><b id="ui-hp">0/0</b></div>
+    <div class="hud-weapon"><span>ARMA</span><b id="ui-weapon">—</b></div>
+    <div class="hud-clothes"><span>VESTIMENTA</span><b id="ui-clothes">—</b></div>
+    <div class="hud-potions"><span>POÇÕES</span><b id="ui-potions">0</b></div>
+    <div class="hud-xp"><span>XP</span><b id="ui-xp">0/0</b></div>
+    <div class="hp-track"><i id="hb"></i></div>
+    <div class="xp-track"><i id="xb"></i></div>
+    <div id="st" aria-hidden="true"></div><div id="gd" aria-hidden="true"></div>
+    <div class="hud-hidden"><span id="house-mark">•</span><span id="ui-gold">0</span><span id="ui-weight">0/100 kg</span><span id="ui-mount">A pé</span></div>
+    <button id="out">salvar e sair</button>
+  </div>
 
-<div id="clock" class="canva-clock"><div>HORÁRIO</div><b id="ui-time">dia 1 · ano 1</b></div>
+  <div id="clock"><div>HORÁRIO</div><b id="ui-time">dia 1 · ano 1</b></div>
+  <div id="log"><div></div><div></div><div></div></div>
 
-<div id="log" class="canva-log">
-  <div class="log-line log-current"></div>
-  <div class="log-line log-prev"></div>
-  <div class="log-line log-old"></div>
-</div>
+  <div id="canva-map"><img src="https://media-public.canva.com/MADQ5mUt-rE/1/thumbnail.jpg" alt=""></div>
+  <div id="mm"><canvas id="mmc" width="61" height="61"></canvas></div>
 
-<div id="canva-map"><img src="https://media-public.canva.com/MADQ5mUt-rE/1/thumbnail.jpg" alt=""></div>
-<div id="mm" aria-label="Abrir mapa"><canvas id="mmc" width="61" height="61"></canvas></div>
+  <div id="md" aria-hidden="true"></div>
 
-<div id="md" class="canva-inventory" aria-hidden="true"></div>
+  <div id="wmap"><canvas id="wmc"></canvas><div id="wmb"><button id="wz1">+</button><button id="wz2">−</button><button id="wx">✕</button></div><div class="m" id="wmh">Arraste para mover · roda do mouse ou pinça para zoom · ESC ou M fecha</div></div>
 
-<div id="wmap">
-  <canvas id="wmc"></canvas>
-  <div id="wmb"><button id="wz1">+</button><button id="wz2">−</button><button id="wx">✕</button></div>
-  <div class="m" id="wmh">Arraste para mover · roda do mouse ou pinça para zoom · ESC ou M fecha</div>
-</div>
-
-<div id="lgn">
-  <div class="login-bg"></div>
-  <div class="login-ui">
-    <label class="login-field login-user">NOME DE USUÁRIO OU EMAIL<input id="u" placeholder="Nome de usuário" maxlength="16" autocomplete="username"></label>
-    <label class="login-field login-pass">SENHA<input id="pw" type="password" placeholder="Senha" autocomplete="current-password"></label>
-    <label class="login-field login-char">CIDADE BLAH<input id="cn" placeholder="Nome do personagem (3-16, só ao criar conta)" maxlength="16"></label>
-    <label class="login-field login-city">CIDADE BLAH<select id="cs"></select></label>
-    <label class="login-field login-house">CASA<select id="hs"><option value="S">Casa Stark — +20 de vida</option><option value="L">Casa Lannister — +250 de ouro</option><option value="T">Casa Targaryen — +3 de ataque</option><option value="B">Casa Baratheon — +2 de defesa</option></select></label>
-    <div class="login-actions"><button id="bi">ENTRAR</button><button id="br">CRIAR CONTA</button></div>
+  <div id="lgn">
+    <div class="login-art"><img src="https://media.canva.com/v2/image-resize/format:PNG/height:67/quality:100/uri:ifs%3A%2F%2FM%2F3ca2a41b-7813-4f4b-9467-2018c73fcd51/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAI4w1Zj6T4OC7UpCTDX11U0RnfrjyeTviZ5NlWkP0EW6&exp=1791137467&osig=AAAAAAAAAAAAAAAAAAAAAAKEc7nRSIjpcfzWTINOo1ViwmZrNjkxnpMCbEm7TqzK&signer=media-rpc&token=AAIAAU0AJDNjYTJhNDFiLTc4MTMtNGY0Yi05NDY3LTIwMThjNzNmY2Q1MQAAAAABoQgcyngHUICEFLU4mvtJv9FysazqgJOqzMxx1RX-o125ZVuUWg&x-canva-quality=thumbnail" alt=""></div>
+    <div class="login-field f1"><span>NOME DE USUÁRIO OU EMAIL</span><input id="u" placeholder="Nome de usuário" maxlength="16" autocomplete="username"></div>
+    <div class="login-field f2"><span>SENHA</span><input id="pw" type="password" placeholder="Senha" autocomplete="current-password"></div>
+    <div class="login-field f3"><span>CIDADE BLAH</span><input id="cn" placeholder="Nome do personagem (3-16, só ao criar conta)" maxlength="16"></div>
+    <div class="login-field f4"><span>CIDADE BLAH</span><select id="cs"></select></div>
+    <div class="house-field"><select id="hs"><option value="S">Casa Stark — +20 de vida</option><option value="L">Casa Lannister — +250 de ouro</option><option value="T">Casa Targaryen — +3 de ataque</option><option value="B">Casa Baratheon — +2 de defesa</option></select></div>
+    <div class="login-actions"><button id="bi">COMEÇAR</button><button id="br">CRIAR CONTA</button></div>
     <div id="err"></div>
   </div>
 </div>
@@ -64,6 +55,7 @@
   <div id="mobile-aim-line"></div><div id="mobile-hint">Esquerda: mover · Direita: arrastar para mirar, soltar para agir</div>
   <div id="mobile-buttons"><button data-key="e">E<br><small>usar</small></button><button data-key="q">Q<br><small>cura</small></button><button data-key="c">C<br><small>cavalo</small></button><button data-key="i">I<br><small>itens</small></button><button data-key="m">M<br><small>mapa</small></button><button data-key=" ">⚔<br><small>atacar</small></button></div>
 </div>
+
 <script src="js/assets.js"></script>
 <script src="js/game.js"></script>
 <script src="js/canva-ui.js"></script>
