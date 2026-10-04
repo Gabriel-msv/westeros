@@ -1,0 +1,29 @@
+Substitua SOMENTE a função hud() existente em js/game.js por esta versão.
+
+function hud(){
+  $('nm').textContent=P.n||P.name||'PERSONAGEM';
+  const def=defV(), atk=Math.round(atkV()), hp=Math.ceil(P.hp), maxhp=mh(), xp=Math.floor(P.xp), nxv=nx();
+  $('ui-def').textContent=def;
+  $('ui-atk').textContent=atk;
+  $('ui-hp').textContent=`${hp}/${maxhp}`;
+  $('ui-hp-label').textContent=`${hp}/${maxhp}`;
+  $('ui-weapon').textContent=W[P.w]?.n||'—';
+  $('ui-clothes').textContent=A[P.a]?.n||'—';
+  $('ui-potions').textContent=P.inv.pot||0;
+  $('ui-xp').textContent=`${xp}/${nxv}`;
+  $('ui-gold').textContent=`${P.gold}g`;
+  $('ui-weight').textContent=`${wt().toFixed(1)}/${P.mw} kg`;
+  $('ui-mount').textContent=P.mounted?'A cavalo':'A pé';
+  const years=Math.floor(G.t/31536000)+1;
+  const days=Math.floor((G.t%31536000)/86400)+1;
+  $('ui-time').textContent=`dia ${days} · ano ${years}`;
+  $('house-mark').textContent=P.h||'•';
+  $('st').textContent=`Nível ${P.lvl} · ${hp}/${maxhp} vida · ataque ${atk} · defesa ${def}`;
+  $('hb').style.width=100*P.hp/maxhp+'%';
+  $('xb').style.width=100*P.xp/nxv+'%';
+  $('gd').innerHTML=`Ouro <b>${P.gold}</b><div class=m style="${ov()?'color:#ff8a80':''}">Peso ${wt().toFixed(1)}/${P.mw} kg · ${P.mounted?'A cavalo (C)':'A pé'}</div>`;
+  for(let j=0;j<61;j++)for(let i=0;i<61;i++){mmc.fillStyle=MMC[tile(P.x-30+i,P.y-30+j)];mmc.fillRect(i,j,1,1)}
+  mmc.fillStyle='#ffd24a';for(const t of TW){const i=t.x-P.x+30,j=t.y-P.y+30;if(i>=0&&i<61&&j>=0&&j<61)mmc.fillRect(i-1,j-1,3,3)}
+  mmc.fillStyle='#f55';for(const m of mons){const i=m.x-P.x+30,j=m.y-P.y+30;if(i>=0&&i<61&&j>=0&&j<61)mmc.fillRect(i,j,1,1)}
+  mmc.fillStyle='#fff';mmc.fillRect(29,29,3,3)
+}
