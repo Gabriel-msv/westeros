@@ -4,63 +4,69 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Crônicas de Westeros</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <canvas id="g"></canvas>
 
-<div id="hud" class="rpg-panel">
-  <div class="hud-title">CRÔNICAS DE WESTEROS</div>
-  <div class="hud-rule"></div>
-  <div class="char-head">
-    <div><div class="eyebrow">PERSONAGEM</div><h3 id="nm">PERSONAGEM</h3></div>
-    <span id="house-mark" class="house-mark">•</span>
-  </div>
-  <div class="stat-grid">
-    <div><span>DEF</span><b id="ui-def">0</b></div>
-    <div><span>ATK</span><b id="ui-atk">0</b></div>
-    <div><span>HP</span><b id="ui-hp">0/0</b></div>
-  </div>
-  <div class="meter-block"><div class="meter-label"><span>VIDA</span><span id="ui-hp-label"></span></div><div class="b hp-meter"><i id="hb"></i></div></div>
-  <div class="meter-block"><div class="meter-label"><span>XP</span><span id="ui-xp">0/0</span></div><div class="b xp-meter"><i id="xb"></i></div></div>
-  <div class="loadout">
-    <div class="loadout-row"><span>ARMA</span><strong id="ui-weapon">—</strong></div>
-    <div class="loadout-row"><span>VESTIMENTA</span><strong id="ui-clothes">—</strong></div>
-    <div class="loadout-row"><span>POÇÕES</span><strong id="ui-potions">0</strong></div>
-  </div>
-  <div class="hud-info">
-    <div><span>HORÁRIO</span><b id="ui-time">dia 1 · ano 1</b></div>
-    <div><span>OURO</span><b id="ui-gold">0</b></div>
-    <div><span>PESO</span><b id="ui-weight">0/100 kg</b></div>
-    <div><span>MONTARIA</span><b id="ui-mount">A pé</b></div>
-  </div>
+<div id="hud" class="canva-ui">
+  <div class="hud-name"><span class="hud-label">NOME</span><b id="nm">PERSONAGEM</b></div>
+  <div class="hud-stat hud-def"><span>DEF</span><b id="ui-def">0</b></div>
+  <div class="hud-stat hud-atk"><span>ATK</span><b id="ui-atk">0</b></div>
+  <div class="hud-stat hud-hp"><span>HP</span><b id="ui-hp">0/0</b></div>
+  <div class="hud-equip hud-weapon"><span>ARMA</span><b id="ui-weapon">—</b></div>
+  <div class="hud-equip hud-clothes"><span>VESTIMENTA</span><b id="ui-clothes">—</b></div>
+  <div class="hud-equip hud-potions"><span>POÇÕES</span><b id="ui-potions">0</b></div>
+  <div class="hud-xp"><span>XP</span><b id="ui-xp">0/0</b></div>
+  <div class="hud-hpbar"><i id="hb"></i></div>
+  <div class="hud-xpbar"><i id="xb"></i></div>
   <div id="st" aria-hidden="true"></div><div id="gd" aria-hidden="true"></div>
-  <button id="out" class="save-btn">SALVAR E SAIR</button>
+  <div class="hud-extra"><span id="house-mark">•</span><span id="ui-gold">0</span><span id="ui-weight">0/100 kg</span><span id="ui-mount">A pé</span></div>
+  <button id="out">salvar e sair</button>
 </div>
 
-<div id="mm" class="rpg-panel minimap-panel"><div class="panel-caption">MAPA</div><canvas id="mmc" width="61" height="61"></canvas><div class="panel-hint">clique para abrir</div></div>
-<div id="log" class="rpg-panel terminal"><div class="panel-caption">TERMINAL / HISTÓRICO</div></div>
-<div id="md" class="rpg-panel modal-panel"></div>
+<div id="clock" class="canva-clock"><div>HORÁRIO</div><b id="ui-time">dia 1 · ano 1</b></div>
 
-<div id="wmap"><canvas id="wmc"></canvas><div id="wmb"><button id="wz1">+</button><button id="wz2">−</button><button id="wx">✕</button></div><div class="m" id="wmh">Arraste para mover · roda do mouse ou pinça para zoom · ESC ou M fecha</div></div>
+<div id="log" class="canva-log">
+  <div class="log-line log-current"></div>
+  <div class="log-line log-prev"></div>
+  <div class="log-line log-old"></div>
+</div>
+
+<div id="canva-map"><img src="https://media-public.canva.com/MADQ5mUt-rE/1/thumbnail.jpg" alt=""></div>
+<div id="mm" aria-label="Abrir mapa"><canvas id="mmc" width="61" height="61"></canvas></div>
+
+<div id="md" class="canva-inventory" aria-hidden="true"></div>
+
+<div id="wmap">
+  <canvas id="wmc"></canvas>
+  <div id="wmb"><button id="wz1">+</button><button id="wz2">−</button><button id="wx">✕</button></div>
+  <div class="m" id="wmh">Arraste para mover · roda do mouse ou pinça para zoom · ESC ou M fecha</div>
+</div>
 
 <div id="lgn">
-  <div class="login-card">
-    <div class="login-kicker">UMA AVENTURA EM WESTEROS</div><h1>CRÔNICAS DE WESTEROS</h1><div class="s">Entre na noite. Escolha seu caminho.</div>
-    <label>NOME DE USUÁRIO OU EMAIL<input id="u" placeholder="Nome de usuário" maxlength="16" autocomplete="username"></label>
-    <label>SENHA<input id="pw" type="password" placeholder="Senha" autocomplete="current-password"></label>
-    <label>NOME DO PERSONAGEM<input id="cn" placeholder="Nome do personagem (3-16, só ao criar conta)" maxlength="16"></label>
-    <label>CIDADE INICIAL<select id="cs"></select></label>
-    <label>CASA<select id="hs"><option value="S">Casa Stark — +20 de vida</option><option value="L">Casa Lannister — +250 de ouro</option><option value="T">Casa Targaryen — +3 de ataque</option><option value="B">Casa Baratheon — +2 de defesa</option></select></label>
-    <div class="login-actions"><button id="bi">ENTRAR</button><button id="br">CRIAR CONTA</button></div><div id="err"></div>
-    <div class="m">A casa só vale para contas novas. Contas e progresso ficam salvos neste navegador, com save automático.</div>
+  <div class="login-bg"></div>
+  <div class="login-ui">
+    <label class="login-field login-user">NOME DE USUÁRIO OU EMAIL<input id="u" placeholder="Nome de usuário" maxlength="16" autocomplete="username"></label>
+    <label class="login-field login-pass">SENHA<input id="pw" type="password" placeholder="Senha" autocomplete="current-password"></label>
+    <label class="login-field login-char">CIDADE BLAH<input id="cn" placeholder="Nome do personagem (3-16, só ao criar conta)" maxlength="16"></label>
+    <label class="login-field login-city">CIDADE BLAH<select id="cs"></select></label>
+    <label class="login-field login-house">CASA<select id="hs"><option value="S">Casa Stark — +20 de vida</option><option value="L">Casa Lannister — +250 de ouro</option><option value="T">Casa Targaryen — +3 de ataque</option><option value="B">Casa Baratheon — +2 de defesa</option></select></label>
+    <div class="login-actions"><button id="bi">ENTRAR</button><button id="br">CRIAR CONTA</button></div>
+    <div id="err"></div>
   </div>
 </div>
 
 <div id="mobile-ui">
-  <div id="move-stick" class="mobile-stick"><div class="nub"></div><div class="mobile-label">Mover</div></div><div id="aim-stick" class="mobile-stick"><div class="nub"></div><div class="mobile-label">Interagir</div></div><div id="mobile-aim-line"></div><div id="mobile-hint">Esquerda: mover · Direita: arrastar para mirar, soltar para agir</div>
+  <div id="move-stick" class="mobile-stick"><div class="nub"></div><div class="mobile-label">Mover</div></div>
+  <div id="aim-stick" class="mobile-stick"><div class="nub"></div><div class="mobile-label">Interagir</div></div>
+  <div id="mobile-aim-line"></div><div id="mobile-hint">Esquerda: mover · Direita: arrastar para mirar, soltar para agir</div>
   <div id="mobile-buttons"><button data-key="e">E<br><small>usar</small></button><button data-key="q">Q<br><small>cura</small></button><button data-key="c">C<br><small>cavalo</small></button><button data-key="i">I<br><small>itens</small></button><button data-key="m">M<br><small>mapa</small></button><button data-key=" ">⚔<br><small>atacar</small></button></div>
 </div>
-<script src="js/assets.js"></script><script src="js/game.js"></script><script src="js/mobile.js"></script>
-</body></html>
+<script src="js/assets.js"></script>
+<script src="js/game.js"></script>
+<script src="js/canva-ui.js"></script>
+<script src="js/mobile.js"></script>
+</body>
+</html>
