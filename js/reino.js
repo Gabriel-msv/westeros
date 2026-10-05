@@ -140,6 +140,6 @@ function render(){const e=S;let h='';$('md').classList.toggle('chat-mode',e.k=='
   h+=`<h3 style="margin-top:8px">Guarnições</h3>`+(Object.keys(P.dom).map(i=>`<div class=r><span>${TW[i].n.split(' / ')[0]}</span><span class=m>${gN(gu(i))} (S${gu(i).s} A${gu(i).a} C${gu(i).k})</span></div>`).join('')||'<div class=m>Nenhuma cidade dominada.</div>')+(gN(P.army)?`<div class=r><span>Comitiva</span><span class=m>${gN(P.army)}</span></div>`:'');
   h+=row('Impostos acumulados: '+Math.floor(P.tax)+'g','RK.tax()','Coletar',P.tax<1);
   if(P.qs.length)h+='<h3 style="margin-top:8px">Missões</h3>'+P.qs.map(q=>`<div class=r><span>${q.who}: ${dq(q)}${q.t=='h'?' ('+q.got+'/'+q.n+')':''}</span></div>`).join('')}
- $('md').innerHTML=(e.k=='soc'?h:'<button type="button" class="panel-close" onclick="closeShop()" aria-label="Fechar">×</button>'+h+'<div style="text-align:right;margin-top:8px"><button onclick="closeShop()">Fechar</button></div>');$('md').style.display='block';if(e.k=='soc')requestAnimationFrame(()=>{const feed=$('chat-feed');if(feed)feed.scrollTop=feed.scrollHeight})}
+ $('md').innerHTML=h+(e.k=='soc'?'':'<div style="text-align:right;margin-top:8px"><button onclick="closeShop()">Fechar</button></div>');$('md').style.display='block';if(e.k=='soc')requestAnimationFrame(()=>{const feed=$('chat-feed');if(feed)feed.scrollTop=feed.scrollHeight})}
 const M0=()=>myPw();RK.mt=marchTick;
 })();
