@@ -75,11 +75,17 @@ No computador, a roda do mouse altera a altura da câmera. No celular, o gesto d
 
 O mapa-múndi possui seu próprio zoom e não deve ser confundido com a câmera do mapa principal.
 
-## Salvamento
+## Salvamento e contas
 
-O progresso é armazenado no `localStorage` do navegador. Isso inclui dados do personagem e sistemas persistentes do jogo.
+Contas e progresso são armazenados pelo servidor Node.js no arquivo `data/accounts.json`; senhas são derivadas com PBKDF2 e nunca salvas em texto puro. O navegador guarda somente o token da sessão. Saves antigos no `localStorage` são migrados para o servidor quando a pessoa entra com o usuário e a senha correspondentes.
 
-Por isso, limpar os dados do navegador pode apagar o progresso local.
+Execute o servidor com Node.js 18 ou superior:
+
+```bash
+node server.js
+```
+
+Abra o endereço informado no terminal (por padrão `http://localhost:8000`). Para sincronizar entre dispositivos fora da máquina local, hospede o servidor em um endereço HTTPS e configure um volume persistente para `data/`. Sem volume persistente, o provedor pode apagar os arquivos de contas durante reinicializações ou novas implantações. Faça backups regulares desse diretório.
 
 ## Como executar
 

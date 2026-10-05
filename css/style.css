@@ -85,7 +85,7 @@ h3,h1{font-family:Cinzel,Georgia,serif;margin:0 0 6px;letter-spacing:.5px}
 .m{color:var(--mu);font-size:12px;margin:4px 0}
 button,select,input{font:inherit;border-radius:7px;border:1px solid #ffffff30;background:#1b2231;color:var(--fg);padding:6px 11px}
 button{cursor:pointer;background:#2a3550}button:hover:not(:disabled){background:#3a4a72}button:disabled{opacity:.45;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac)}
-#lgn{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,rgba(28,42,63,.46),rgba(8,10,16,.66)),url("../assets/menu/background.png") center/cover no-repeat, url("../assets/westeros/menus/background.png") center/cover no-repeat;z-index:5;font-family:Cinzel,Georgia,serif}
+#lgn{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,rgba(28,42,63,.46),rgba(8,10,16,.66)),url("../assets/westeros/menus/backgrounds.png") center/cover no-repeat;z-index:5;font-family:Cinzel,Georgia,serif}
 #lgn .logo{display:block;width:min(560px,92vw);max-height:30vh;object-fit:contain;margin:0 auto -10px}
 #lgn .c{width:min(360px,90vw);display:grid;gap:9px}
 #lgn input{background:#3a2b24;border-color:#80634f;color:#f3e9db}

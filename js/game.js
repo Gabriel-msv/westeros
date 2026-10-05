@@ -188,25 +188,70 @@ function msg(s,c='#ebe7dc'){logs.push(`<div style="color:${c}">${s}</div>`);if(l
 /** Cria texto flutuante (dano, cura) numa posição do mundo. */
 const fx=(x,y,t,c)=>fxs.push({x,y,t,c,l:1});
 /* ===== contas e save ===== */
-/** Chave do localStorage das contas (got_contas_v2, migra da v1). */
-const AK='got_contas_v2',ld=()=>{try{return JSON.parse(localStorage.getItem(AK)||localStorage.getItem('got_contas_v1'))||{}}catch{return{}}},sv=o=>{try{localStorage.setItem(AK,JSON.stringify(o));return 1}catch{return 0}};
-/** Hash SHA-256 da senha (nunca guardamos a senha pura). */
+const AK='got_contas_v2',SESSION_KEY='got_session_token',API_BASE='';
+const ld=()=>{try{return JSON.parse(localStorage.getItem(AK)||localStorage.getItem('got_contas_v1'))||{}}catch{return{}}},sv=o=>{try{localStorage.setItem(AK,JSON.stringify(o));return 1}catch{return 0}};
 async function hs(s){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('got:'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}catch{return btoa(unescape(encodeURIComponent(s)))}}
-/** Campos do personagem que entram no save. */
 const SK=['name','x','y','hp','lvl','xp','gold','inv','w','a','s','hd','b','g','c','r1','r2','am','du','pf','rp','mw','h','home','kills','pt','rt','lt','playTime'];
-/** Salva o personagem em localStorage dentro da conta (campos listados em SK). */
-function save(){if(!P||!user)return;const a=ld();if(!a[user])return;const o={};SK.forEach(k=>o[k]=P[k]);o.horse=!!P.horse;o.mounted=!!P.mounted;o.cut=[...cut];o.v=10;a[user].s=o;sv(a)}
-/** Tela de login: entra ou cria conta (nome, cidade inicial, casa) e chama start(). */
-async function auth(reg){const u=$('u').value.trim().toLowerCase(),pw=$('pw').value,e=$('err');if(u.length<3||pw.length<4){e.textContent='Use ao menos 3 letras no nome e 4 na senha.';return}
- const a=ld(),h=await hs(pw);
- if(reg){if(a[u]){e.textContent='Esse nome já existe. Entre ou escolha outro.';return}const hh=$('hs').value,ci=+$('cs').value,nm=$('cn').value.trim();if(nm.length<3||nm.length>16){e.textContent='Nome do personagem: 3 a 16 caracteres.';return}const c=TW[ci];a[u]={h,s:{name:nm,x:c.x,y:c.y+2,hp:100+(hh=='S'?20:0),lvl:1,xp:0,gold:50+(hh=='L'?250:0),inv:{pot:2},w:0,a:0,h:hh,home:ci,kills:0,pt:0,horse:false,mounted:false,cut:[],v:10}};if(!sv(a)){e.textContent='Não foi possível salvar neste navegador.';return}}
- else{if(a[u]&&typeof a[u].h==='string'&&a[u].h.length===1){a[u].h=h;sv(a);auth.rep=1}
-  if(!a[u]||a[u].h!=h){e.textContent='Usuário ou senha incorretos.';return}}
- start(u,a[u].s);if(auth.rep){auth.rep=0;msg('Conta antiga reparada: esta senha agora é a da sua conta.','#e2b04a')}}
-/** Inicia a sessão: preenche padrões faltantes do save (migração), zera monstros/cidadãos e mostra o jogo. */
-function start(u,s){user=u;P={...s,inv:{...s.inv}};P.name=P.name||u;SL.forEach(k=>P[k]|=0);P.du={...Object.fromEntries(SL.map(k=>[k,100])),...P.du};P.pf={sword:0,axe:0,bow:0,unarmed:20,woodcut:10,fish:0,cook:0,repair:0,mining:0,...P.pf};P.rp={...P.rp};P.mw=P.mw||100;const HOME={S:3,L:11,T:1,B:21},SP={S:[TW[3].x,TW[3].y+2],L:[TW[11].x,TW[11].y+2],T:[TW[1].x,TW[1].y+2],B:[TW[21].x,TW[21].y+2]};const legacyCastle=Math.abs(P.x)<=3&&P.y>=-55&&P.y<=-49;if(!P.v&&legacyCastle&&HOME[P.h]!==undefined){P.home=HOME[P.h];P.x=SP[P.h][0];P.y=SP[P.h][1];P.dx=P.x;P.dy=P.y}if(u==='sudo'){P.gold=999999999;P.w=W.length-1;P.a=A.length-1;P.lvl=30;P.xp=0;P.hp=mh();P.horse=true;P.mounted=true;P.inv={pot:99,'Vidro de Dragão':99,'Escama de Dragão':99,'Pele de Lobo':99,'Madeira':99};}cut.clear();(s.cut||[]).forEach(k=>cut.add(k));tc.clear();Object.assign(P,{dx:P.x,dy:P.y,mv:0,cd:0,f:[0,1],tw:-1,horse:!!P.horse,mounted:!!P.mounted});mons.length=0;CZ.length=0;G.al=0;S=null;$('md').style.display='none';$('inventory-panel').style.display='flex';setInventoryOpen(true);$('hud').style.display='block';$('top-actions').style.display='flex';$('lgn').style.display='none';$('err').textContent='';logs.length=0;msg('Bem-vindo. Mova-se com <span class=k>WASD</span>, ataque com <span class=k>Espaço</span>, fale com NPCs e corte árvores com <span class=k>E</span>, cure-se com <span class=k>Q</span>, inventário em <span class=k>I</span>.','#8fd0f0');msg('Cidades são seguras. Cuidado com saqueadores nas estradas.')}
-$('bi').onclick=()=>auth(0);$('br').onclick=()=>auth(1);$('pw').onkeydown=e=>{if(e.key=='Enter')auth(0)};
-$('out').onclick=()=>{save();P=null;user=null;$('lgn').style.display='flex';$('inventory-panel').style.display='none';$('hud').style.display='none';$('top-actions').style.display='none'};
+let sessionToken='';
+try{sessionToken=localStorage.getItem(SESSION_KEY)||''}catch{}
+const api=async(path,options={})=>{const headers={'Content-Type':'application/json',...(options.headers||{})};if(sessionToken)headers.Authorization='Bearer '+sessionToken;const r=await fetch(API_BASE+path,{...options,headers});let data={};try{data=await r.json()}catch{}if(!r.ok){const e=new Error(data.message||'Falha na comunicação com o servidor.');e.status=r.status;e.code=data.error;e.data=data;throw e}return data};
+const localSave=()=>{if(!P||!user)return null;const o={};SK.forEach(k=>o[k]=P[k]);o.horse=!!P.horse;o.mounted=!!P.mounted;o.cut=[...cut];o.v=10;return o};
+let saveTimer=0;
+async function saveRemote(){if(!P||!user||!sessionToken)return;try{await api('/api/save',{method:'PUT',body:JSON.stringify({save:localSave()})})}catch(e){if(e.status===401){sessionToken='';try{localStorage.removeItem(SESSION_KEY)}catch{};msg('Sessão expirada. Salve novamente após entrar.','#ff8a80')}}}
+function save(){if(!P||!user)return;clearTimeout(saveTimer);saveTimer=setTimeout(saveRemote,120);}
+function saveNow(){if(!P||!user||!sessionToken)return;const body=JSON.stringify({save:localSave()});try{fetch('/api/save',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+sessionToken, 'X-Save-Now':'1'},body,keepalive:true}).catch(()=>{})}catch{}}
+function rememberToken(token){sessionToken=token||'';try{if(sessionToken)localStorage.setItem(SESSION_KEY,sessionToken);else localStorage.removeItem(SESSION_KEY)}catch{}}
+function localAccount(u,pw){const a=ld(),acc=a[u];return acc?{a,acc}:null}
+async function auth(reg){
+ const u=$('u').value.trim().toLowerCase(),pw=$('pw').value,e=$('err');e.textContent='';
+ if(u.length<3||u.length>16||pw.length<4||pw.length>128){e.textContent='Use usuário de 3 a 16 caracteres e senha de 4 a 128 caracteres.';return}
+ const local=localAccount(u,pw),hh=$('hs').value,ci=+$('cs').value,nm=$('cn').value.trim();
+ if(reg&& (nm.length<3||nm.length>16)){e.textContent='Nome do personagem: 3 a 16 caracteres.';return}
+ try{
+   let data;
+   if(reg){
+     const c=TW[ci];const fresh={name:nm,x:c.x,y:c.y+2,hp:100+(hh=='S'?20:0),lvl:1,xp:0,gold:50+(hh=='L'?250:0),inv:{pot:2},w:0,a:0,h:hh,home:ci,kills:0,pt:0,horse:false,mounted:false,cut:[],v:10};
+     data=await api('/api/auth/register',{method:'POST',body:JSON.stringify({username:u,password:pw,save:fresh})});
+   }else{
+     try{data=await api('/api/auth/login',{method:'POST',body:JSON.stringify({username:u,password:pw})})}
+     catch(err){
+       if(err.status!==404||!local)throw err;
+       const oldHash=await hs(pw),saved=local.acc.s;
+       if(!saved||local.acc.h!==oldHash)throw err;
+       data=await api('/api/auth/register',{method:'POST',body:JSON.stringify({username:u,password:pw,save:saved})});
+       try{local.acc.migratedToServer=true;sv(local.a)}catch{}
+       auth.rep=1;
+     }
+   }
+   rememberToken(data.token);start(data.username,data.save);
+   if(auth.rep){auth.rep=0;msg('Conta antiga migrada para o servidor.','#e2b04a')}
+ }catch(err){e.textContent=err.message||'Não foi possível conectar ao servidor.'}
+}
+function start(u,s){user=u;P={...s,inv:{...(s?.inv||{})}};P.name=P.name||u;SL.forEach(k=>P[k]|=0);P.du={...Object.fromEntries(SL.map(k=>[k,100])),...P.du};P.pf={sword:0,axe:0,bow:0,unarmed:20,woodcut:10,fish:0,cook:0,repair:0,mining:0,...P.pf};P.rp={...P.rp};P.mw=P.mw||100;const HOME={S:3,L:11,T:1,B:21},SP={S:[TW[3].x,TW[3].y+2],L:[TW[11].x,TW[11].y+2],T:[TW[1].x,TW[1].y+2],B:[TW[21].x,TW[21].y+2]};const legacyCastle=Math.abs(P.x)<=3&&P.y>=-55&&P.y<=-49;if(!P.v&&legacyCastle&&HOME[P.h]!==undefined){P.home=HOME[P.h];P.x=SP[P.h][0];P.y=SP[P.h][1];P.dx=P.x;P.dy=P.y}if(u==='sudo'){P.gold=999999999;P.w=W.length-1;P.a=A.length-1;P.lvl=30;P.xp=0;P.hp=mh();P.horse=true;P.mounted=true;P.inv={pot:99,'Vidro de Dragão':99,'Escama de Dragão':99,'Pele de Lobo':99,'Madeira':99};}cut.clear();(s.cut||[]).forEach(k=>cut.add(k));tc.clear();Object.assign(P,{dx:P.x,dy:P.y,mv:0,cd:0,f:[0,1],tw:-1,horse:!!P.horse,mounted:!!P.mounted});mons.length=0;CZ.length=0;G.al=0;S=null;$('md').style.display='none';$('inventory-panel').style.display='flex';setInventoryOpen(true);$('hud').style.display='block';$('top-actions').style.display='flex';$('lgn').style.display='none';$('err').textContent='';logs.length=0;msg('Bem-vindo. Mova-se com <span class=k>WASD</span>, ataque com <span class=k>Espaço</span>, fale com NPCs e corte árvores com <span class=k>E</span>, cure-se com <span class=k>Q</span>, inventário em <span class=k>I</span>.','#8fd0f0');msg('Cidades são seguras. Cuidado com saqueadores nas estradas.')}
+function setupEnterNavigation(){
+ const fields=[$('u'),$('pw'),$('cn'),$('cs'),$('hs')].filter(Boolean);
+ fields.forEach((field,index)=>{
+  field.addEventListener('keydown',event=>{
+   if(event.key!=='Enter')return;
+   const next=fields.slice(index+1).find(candidate=>candidate&&candidate.offsetParent!==null&&!candidate.disabled);
+   if(next){
+    event.preventDefault();
+    next.focus();
+    if(next instanceof HTMLInputElement&&typeof next.select==='function')next.select();
+    return;
+   }
+   const primaryButton=$('bi');
+   if(primaryButton){
+    event.preventDefault();
+    primaryButton.click();
+   }
+  });
+ });
+}
+
+$('bi').onclick=()=>auth(0);$('br').onclick=()=>auth(1);
+setupEnterNavigation();
+$('out').onclick=()=>{saveNow();rememberToken('');P=null;user=null;$('lgn').style.display='flex';$('inventory-panel').style.display='none';$('hud').style.display='none';$('top-actions').style.display='none'};
 function setInventoryOpen(open){const panel=$('inventory-panel'),toggle=$('inventory-toggle');panel.classList.toggle('inventory-collapsed',!open);document.body.classList.toggle('inventory-collapsed',!open);$('mobile-ui').classList.toggle('inventory-open',open);toggle.setAttribute('aria-expanded',String(open));toggle.title=open?'Recolher inventário':'Abrir inventário';toggle.querySelector('.inventory-arrow').textContent=open?'▲':'▼'}
 function toggleInventory(){setInventoryOpen($('inventory-panel').classList.contains('inventory-collapsed'))}
 $('inventory-toggle').onclick=toggleInventory;
