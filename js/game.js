@@ -1,4 +1,4 @@
-/* ============================================================================
+﻿/* ============================================================================
  * CRÔNICAS DE WESTEROS — js/game.js
  * Lógica principal. Ordem do arquivo: utilidades/ruído -> mundo (cidades, layouts,
  * estradas, gerador de tiles) -> dados (itens, monstros) -> estado -> contas/save
@@ -72,7 +72,7 @@ const inTown=(x,y,m=0)=>TW.find(t=>Math.abs(x-t.x)<=t.rx+m&&Math.abs(y-t.y)<=t.r
 /** Gera casas 3x3 com porta (tile 17) embaixo, nos centros dados. */
 const HSE=(dx,dy,L)=>{for(const[a,b]of L)if(Math.abs(dx-a)<=1&&Math.abs(dy-b)<=1)return(dx==a&&dy==b+1)?17:9;return 0};
 /** Interior das casas: sala fixa 7x5 em (20000,20000). Devolve o id do tile para (x,y). */
-function room(x,y){const a=x-20000,b=y-20000;if(a<0||a>6||b<0||b>4||a==0||a==6||b==0)return 12;if(b==4)return a==3?17:12;return(RCH[RM.t]||[[5,1]]).some(([p,q])=>p==a&&q==b)?19:14}
+function room(x,y){const a=x-19996,b=y-19996;if(a<0||a>14||b<0||b>10)return 0;if(a==0||a==14||b==0)return 12;if(b==10)return a==7?17:12;return(RCH[RM.t]||[[10,2]]).some(([p,q])=>p==a&&q==b)?19:14}
 /** Layout dos 8 lugares emblemáticos (k = wf/cb/pr/cr/ea/hh/py/dr) em coordenadas relativas ao centro da cidade. */
 function lay(k,dx,dy){const B=(a,b)=>Math.abs(dx)<=a&&Math.abs(dy)<=b,R=(a,b)=>B(a,b)&&!B(a-1,b-1),cr=(a,b)=>Math.abs(dx)==a&&Math.abs(dy)==b,W=(a,b)=>R(a,b)?(cr(a,b)?13:(dx==0||dy==0?15:12)):0;let t;
  if(k=='wf'){t=W(13,10)||W(7,5)||HSE(dx,dy,[[10,-8],[10,3],[-5,8],[5,8]]);if(t)return t;if(B(13,10)&&!B(7,5)){if(dx<-8&&dy<-4)return(dx+dy)%3?3:10;if(dx<-8&&dy>5)return 0}return B(13,10)?14:8}
@@ -206,7 +206,7 @@ async function auth(reg){const u=$('u').value.trim().toLowerCase(),pw=$('pw').va
 /** Inicia a sessão: preenche padrões faltantes do save (migração), zera monstros/cidadãos e mostra o jogo. */
 function start(u,s){user=u;P={...s,inv:{...s.inv}};P.name=P.name||u;SL.forEach(k=>P[k]|=0);P.du={...Object.fromEntries(SL.map(k=>[k,100])),...P.du};P.pf={sword:0,axe:0,bow:0,unarmed:20,woodcut:10,fish:0,cook:0,repair:0,mining:0,...P.pf};P.rp={...P.rp};P.mw=P.mw||100;const HOME={S:3,L:11,T:1,B:21},SP={S:[TW[3].x,TW[3].y+2],L:[TW[11].x,TW[11].y+2],T:[TW[1].x,TW[1].y+2],B:[TW[21].x,TW[21].y+2]};const legacyCastle=Math.abs(P.x)<=3&&P.y>=-55&&P.y<=-49;if(!P.v&&legacyCastle&&HOME[P.h]!==undefined){P.home=HOME[P.h];P.x=SP[P.h][0];P.y=SP[P.h][1];P.dx=P.x;P.dy=P.y}if(u==='sudo'){P.gold=999999999;P.w=W.length-1;P.a=A.length-1;P.lvl=30;P.xp=0;P.hp=mh();P.horse=true;P.mounted=true;P.inv={pot:99,'Vidro de Dragão':99,'Escama de Dragão':99,'Pele de Lobo':99,'Madeira':99};}cut.clear();(s.cut||[]).forEach(k=>cut.add(k));tc.clear();Object.assign(P,{dx:P.x,dy:P.y,mv:0,cd:0,f:[0,1],tw:-1,horse:!!P.horse,mounted:!!P.mounted});mons.length=0;CZ.length=0;G.al=0;S=null;$('md').style.display='none';$('inventory-panel').style.display='flex';setInventoryOpen(true);$('hud').style.display='block';$('top-actions').style.display='flex';$('lgn').style.display='none';$('err').textContent='';logs.length=0;msg('Bem-vindo. Mova-se com <span class=k>WASD</span>, ataque com <span class=k>Espaço</span>, fale com NPCs e corte árvores com <span class=k>E</span>, cure-se com <span class=k>Q</span>, inventário em <span class=k>I</span>.','#8fd0f0');msg('Cidades são seguras. Cuidado com saqueadores nas estradas.')}
 $('bi').onclick=()=>auth(0);$('br').onclick=()=>auth(1);$('pw').onkeydown=e=>{if(e.key=='Enter')auth(0)};
-$('out').onclick=()=>{save();P=null;user=null;$('lgn').style.display='flex';$('inventory-panel').style.display='none';$('hud').style.display='none';$('top-actions').style.display='none';if($('mission-panel'))$('mission-panel').style.display='none'};
+$('out').onclick=()=>{save();P=null;user=null;$('lgn').style.display='flex';$('inventory-panel').style.display='none';$('hud').style.display='none';$('top-actions').style.display='none'};
 function setInventoryOpen(open){const panel=$('inventory-panel'),toggle=$('inventory-toggle');panel.classList.toggle('inventory-collapsed',!open);document.body.classList.toggle('inventory-collapsed',!open);$('mobile-ui').classList.toggle('inventory-open',open);toggle.setAttribute('aria-expanded',String(open));toggle.title=open?'Recolher inventário':'Abrir inventário';toggle.querySelector('.inventory-arrow').textContent=open?'▲':'▼'}
 function toggleInventory(){setInventoryOpen($('inventory-panel').classList.contains('inventory-collapsed'))}
 $('inventory-toggle').onclick=toggleInventory;
@@ -231,7 +231,7 @@ function shop(){const n=S;let h=`<h3>${n.n}</h3>`;
    h+=tool('Machado de Corte',40)+tool('Picareta',60);h+=`<div class=m>Equipamentos melhores aparecem em cidades mais ao sul.</div>`}
   if(n.k=='pr'){h+=row('Receber a bênção: recuperar toda a vida — grátis','rest()','Rezar')+'<div class=m>O sacerdote cuida do santuário.</div>'}
   if(n.k=='e'){h+=row('Descansar e recuperar toda a vida — grátis','rest()','Descansar')+`<div class=m>Ao entrar numa cidade, ela vira seu ponto de retorno se você cair em combate.</div>`}}
- $('md').innerHTML=h+'<div style="text-align:right;margin-top:8px"><button onclick="closeShop()">Fechar</button></div>';$('md').style.display='block'}
+ $('md').innerHTML='<button type="button" class="panel-close" onclick="closeShop()" aria-label="Fechar">×</button>'+h+'<div style="text-align:right;margin-top:8px"><button onclick="closeShop()">Fechar</button></div>';$('md').style.display='block'}
 /** Fecha o painel central e salva. */
 function closeShop(){S=null;$('md').style.display='none';save()}
 /** Compra uma poção (checa ouro, peso e preço com reputação/região). */
@@ -239,9 +239,9 @@ function buy(k){const c=pc(25);if(P.gold<c)return msg('Ouro insuficiente.','#ff8
 /** Vende todo o stack de um item de LT no mercador atual. */
 function sell(k){P.gold+=sp(k);msg(`Vendeu ${P.inv[k]}× ${k}.`,'#e2b04a');delete P.inv[k];rp1();shop();save()}
 /** Compra uma ferramenta (Machado, Picareta, Vara) — só uma de cada. */
-function buyT(k,c){if(P.inv[k])return msg('Você já possui esse item.','#9aa3b2');c=pc(c);if(P.gold<c)return msg('Ouro insuficiente.','#ff8a80');P.gold-=c;P.inv[k]=1;rp1();msg('Comprou '+k+'.','#e2b04a');shop();save()}
+function buyT(k,c){c=pc(c);if(P.gold<c)return msg('Ouro insuficiente.','#ff8a80');P.gold-=c;P.inv[k]=1;rp1();msg('Comprou '+k+'.','#e2b04a');shop();save()}
 /** Compra e equipa uma peça (arma, armadura, escudo, capacete) com durabilidade 100%. */
-function eq(t,i){if(P[t]===i)return msg('Você já está usando esse equipamento.','#9aa3b2');const it=IT[t][i],c=pc(it.c);if(P.gold<c)return msg('Ouro insuficiente.','#ff8a80');P.gold-=c;P[t]=i;P.du[t]=100;rp1();msg('Equipou '+it.n+'.','#e2b04a');shop();save()}
+function eq(t,i){const it=IT[t][i],c=pc(it.c);if(P.gold<c)return msg('Ouro insuficiente.','#ff8a80');P.gold-=c;P[t]=i;P.du[t]=100;rp1();msg('Equipou '+it.n+'.','#e2b04a');shop();save()}
 /** Repara a peça equipada de um slot por 20% do preço. */
 function fix(t){const c=pc(Math.ceil(IT[t][P[t]].c*.2));if(P.gold<c)return msg('Ouro insuficiente.','#ff8a80');P.gold-=c;P.du[t]=100;P.pf.repair=Math.min(100,P.pf.repair+.5);msg('Equipamento reparado.','#e2b04a');shop();save()}
 /** Buffer do código secreto. */
@@ -370,53 +370,14 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(e.target.tagName==
  if(k=='e'&&!e.repeat&&!talk())chop();
  if(k=='q'&&!e.repeat){if(P.inv.pot>0&&P.hp<mh()){P.inv.pot--;P.hp=Math.min(mh(),P.hp+45);fx(P.x,P.y,'+45','#7f7')}else msg('Sem poções ou vida cheia.','#9aa3b2')}});
 addEventListener('keyup',e=>K.delete(e.key.toLowerCase()));addEventListener('blur',()=>K.clear());
-cv.addEventListener('pointerdown',e=>{if(!P||S||e.pointerType==='touch')return;const s=sc(),x=Math.round(P.dx+(e.clientX-cv.width/2)/s),y=Math.round(P.dy+(e.clientY-cv.height/2)/s);
+cv.addEventListener('pointerdown',e=>{if(!P||S)return;const s=sc(),x=Math.round(P.dx+(e.clientX-cv.width/2)/s),y=Math.round(P.dy+(e.clientY-cv.height/2)/s);
  const n=NP.find(n=>n.x==x&&n.y==y);if(n){if(!talk())msg('Aproxime-se de '+n.n+'.','#9aa3b2');return}
  const rn=RN.find(r=>r.x==x&&r.y==y);if(rn){if(Math.max(Math.abs(rn.x-P.x),Math.abs(rn.y-P.y))<=1)hitR(rn);else msg('Alvo distante demais.','#9aa3b2');return}
  const cz=CZ.find(c=>!c.in&&c.x==x&&c.y==y);if(cz){if(Math.max(Math.abs(cz.x-P.x),Math.abs(cz.y-P.y))<=1)hitC(cz);else msg('Alvo distante demais.','#9aa3b2');return}
  const m=mons.find(m=>m.x==x&&m.y==y);if(m){if(Math.max(Math.abs(m.x-P.x),Math.abs(m.y-P.y))<=1)atk(m);else msg('Alvo distante demais.','#9aa3b2');return}
  const dx=x-P.x,dy=y-P.y;if(Math.abs(dx)+Math.abs(dy)==1){P.f=[dx,dy];chop()}});
-/** Altura visível da câmera, em tiles. Menor = mais zoom; maior = mais visão. */
-let cameraTiles=15;
-const CAMERA_MIN=5, CAMERA_MAX=30;
-/** Tamanho do tile em pixels na tela, calculado pela altura desejada da câmera. */
-const sc=()=>cv.height/cameraTiles;
-/** Altera a altura da câmera mantendo o jogador no centro. */
-function setCameraTiles(v){cameraTiles=Math.max(CAMERA_MIN,Math.min(CAMERA_MAX,v))}
-/** Zoom da roda do mouse: roda para cima aproxima, para baixo afasta. */
-cv.addEventListener('wheel',e=>{
- if(!P||S||wmOpen())return;
- e.preventDefault();
- const step=Math.max(1,Math.min(3,Math.round(Math.abs(e.deltaY)/100)));
- setCameraTiles(cameraTiles+(e.deltaY>0?step:-step));
-},{passive:false});
-/** Pinça no celular: abrir aproxima; fechar afasta. */
-const cameraPointers=new Map();
-let cameraPinchDistance=0;
-cv.addEventListener('pointerdown',e=>{
- if(e.pointerType!=='touch'||!P||S||wmOpen())return;
- cameraPointers.set(e.pointerId,[e.clientX,e.clientY]);
- if(cameraPointers.size===2){
-   const q=[...cameraPointers.values()];
-   cameraPinchDistance=Math.hypot(q[0][0]-q[1][0],q[0][1]-q[1][1]);
- }
- e.preventDefault();
-},{passive:false});
-cv.addEventListener('pointermove',e=>{
- if(e.pointerType!=='touch'||!cameraPointers.has(e.pointerId)||cameraPointers.size!==2)return;
- cameraPointers.set(e.pointerId,[e.clientX,e.clientY]);
- const q=[...cameraPointers.values()],d=Math.hypot(q[0][0]-q[1][0],q[0][1]-q[1][1]);
- if(cameraPinchDistance>0){
-   const ratio=d/cameraPinchDistance;
-   if(Math.abs(Math.log(ratio))>.035){
-     setCameraTiles(cameraTiles-(ratio-1)*6);
-     cameraPinchDistance=d;
-   }
- }
- e.preventDefault();
-},{passive:false});
-const cameraPointerEnd=e=>{if(e.pointerType==='touch')cameraPointers.delete(e.pointerId);if(cameraPointers.size<2)cameraPinchDistance=0};
-cv.addEventListener('pointerup',cameraPointerEnd);cv.addEventListener('pointercancel',cameraPointerEnd);
+/** Tamanho do tile em pixels na tela (zoom do jogo). */
+const sc=()=>(cv.width<700?1.4:2)*T;
 /** Atualização por quadro: entrada, movimento, portas, monstros, regeneração, alerta e autosave. */
 function upd(dt){G.t+=dt;P.playTime=(P.playTime||0)+dt;P.mv-=dt;P.cd-=dt;const sf=inTown(P.x,P.y);
  P.dx+=(P.x-P.dx)*Math.min(1,dt*16);P.dy+=(P.y-P.dy)*Math.min(1,dt*16);

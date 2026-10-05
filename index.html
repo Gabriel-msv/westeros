@@ -7,7 +7,6 @@
 </head><body>
 <canvas id="g"></canvas>
 <div id="top-actions"><button id="out">◀ Salvar e sair</button><button id="btn-reino" type="button" title="Reino e Exército (R)">👑 Reino</button><button id="settings" type="button" aria-label="Configurações" aria-expanded="false" aria-controls="settings-panel" title="Configurações">⚙</button></div>
-<section id="mission-panel" aria-label="Missões ativas"></section>
 <section id="settings-panel" class="p" role="dialog" aria-labelledby="settings-title" hidden>
   <div class="settings-head"><strong id="settings-title">Configurações</strong><button id="settings-close" type="button" aria-label="Fechar configurações">×</button></div>
   <fieldset>
@@ -42,9 +41,9 @@
   </header>
   <div id="log" aria-live="polite"></div>
 </section>
-<div id="md" class="p"></div>
+<div id="md" class="p" role="dialog" aria-modal="true"></div>
 <div id="wmap"><canvas id="wmc"></canvas><div id="wmb"><button id="wz1">+</button><button id="wz2">−</button><button id="wx">✕</button></div><div class="m" id="wmh">Arraste para mover · roda do mouse ou pinça para zoom · ESC ou M fecha</div></div>
-<div id="lgn"><img class="logo" src="assets/westeros/menus/cronicasdewesteros.png" alt="Crônicas de Westeros"><div class="c">
+<div id="lgn"><img class="logo" src="assets/menu/westerosdourado.png" onerror="this.onerror=function(){this.src='assets/westeros/menus/cronicasdewesteros.png'};this.src='assets/westeros/menu/westerosdourado.png'" alt="Crônicas de Westeros"><div class="c">
 <input id="u" placeholder="Nome de usuário" maxlength="16" autocomplete="username">
 <input id="pw" type="password" placeholder="Senha" autocomplete="current-password">
 <input id="cn" placeholder="Nome do personagem (3-16, só ao criar conta)" maxlength="16"><select id="cs"></select><select id="hs"><option value="S">Casa Stark — +20 de vida</option><option value="L">Casa Lannister — +250 de ouro</option><option value="T">Casa Targaryen — +3 de ataque</option><option value="B">Casa Baratheon — +2 de defesa</option></select>
@@ -65,7 +64,6 @@
     </div>
     <div id="aim-stick" class="mobile-stick"><div class="nub"></div><div class="mobile-label">Interagir</div><div id="mobile-aim-line"></div></div>
   </div>
-  <div id="mobile-hint">Esquerda: mover · Direita: arrastar para mirar, soltar para agir</div>
 </div>
 <script src="js/assets.js"></script>
 <script src="js/game.js"></script>

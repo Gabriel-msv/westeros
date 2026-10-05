@@ -1,12 +1,12 @@
 :root{--pn:rgba(14,18,27,.88);--fg:#ebe7dc;--mu:#9aa3b2;--ac:#e2b04a;--ice:#8fd0f0;--rd:#c8433a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html,body{margin:0;height:100%;background:#0b0e14;color:var(--fg);font:14px system-ui,sans-serif;overflow:hidden}
-canvas#g{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:crosshair;touch-action:none}
+canvas#g{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:crosshair}
 .p{position:absolute;background:var(--pn);border:1px solid #ffffff20;border-radius:10px;padding:9px 11px}
 h3,h1{font-family:Cinzel,Georgia,serif;margin:0 0 6px;letter-spacing:.5px}
 .b{height:8px;background:#0007;border-radius:4px;margin:5px 0;overflow:hidden}.b i{display:block;height:100%}
 #top-actions{position:absolute;left:10px;top:calc(10px + env(safe-area-inset-top,0px));z-index:6;display:none;align-items:center;gap:8px}
 #out,#btn-reino{background:#3a2b24;border:1px solid #80634f;color:#efc76a;padding:7px 12px;white-space:nowrap;border-radius:7px;cursor:pointer}
-#out:hover,#btn-reino:hover{background:#503b2c;color:#ffe3a0}#mission-panel{position:absolute;left:10px;top:calc(58px + env(safe-area-inset-top,0px));z-index:5;display:none;box-sizing:border-box;width:min(285px,calc(100vw - 20px));max-height:42vh;overflow:auto;padding:9px 10px;background:rgba(30,23,20,.94);border:1px solid #80634f;border-radius:8px;box-shadow:0 6px 18px #0008;color:#f3e9db;font:12px/1.35 system-ui,sans-serif}#mission-panel>strong{display:block;margin-bottom:6px;color:#efc76a;font:700 11px Cinzel,Georgia,serif;letter-spacing:.7px}.mission-card{padding:6px 0;border-top:1px solid #ffffff18}.mission-card:first-of-type{border-top:0}.mission-card b{display:block;color:#f3e9db}.mission-card span{display:block;color:#c2a891;font-size:10px;margin-bottom:2px}.mission-card div{color:#e8c982}.mission-empty{color:#9aa3b2;font-size:11px}.chat-choice-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin-bottom:6px}.chat-choice-tabs button{padding:5px 3px;font-size:10px}.chat-choice-tabs button.active{border-color:#efc76a;color:#ffe3a0;background:#503b2c}.chat-choice-list{display:grid;grid-template-columns:1fr;gap:4px;max-height:190px;overflow:auto}.chat-choice-list button{padding:7px 8px;text-align:left;white-space:normal;line-height:1.2}
+#out:hover,#btn-reino:hover{background:#503b2c;color:#ffe3a0}
 #settings{box-sizing:border-box;width:36px;height:36px;padding:0;display:grid;place-items:center;background:#3a2b24;border:1px solid #80634f;border-radius:8px;color:#efc76a;font-size:20px;line-height:1}
 #settings:hover{background:#503b2c;color:#ffe3a0}
 #settings-panel{box-sizing:border-box;left:10px;top:calc(54px + env(safe-area-inset-top,0px));width:min(230px,calc(100vw - 20px));z-index:8;padding:12px;background:rgba(58,43,36,.98);border-color:#80634f;color:#f3e9db;font-family:Cinzel,Georgia,serif}
@@ -39,7 +39,7 @@ h3,h1{font-family:Cinzel,Georgia,serif;margin:0 0 6px;letter-spacing:.5px}
 .inventory-grid{width:100%;height:100%;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:min-content;align-content:start;gap:5%;padding:2px 5px 2px 2px;scrollbar-color:#80634f #2a1e17;scrollbar-width:thin}
 .inventory-slot{position:relative;min-width:0;min-height:0;aspect-ratio:1;background:#2a1e17;border:1px solid #80634f;border-radius:10px;display:grid;place-items:center;text-align:center;padding:4px;color:#f3e9db;font:10px Cinzel,Georgia,serif;overflow:hidden}
 .inventory-slot .item-count{position:absolute;right:6px;bottom:4px;color:#efc76a;font-weight:800}
-#md{z-index:4}
+#md{z-index:60}
 #terminal{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:min(540px,calc(100vw - 260px));z-index:2;text-align:center;pointer-events:none;color:#efc76a}
 .terminal-clock{display:grid;justify-items:center;gap:1px;margin-bottom:5px;font-family:Cinzel,Georgia,serif}
 .terminal-clock h2{margin:0;color:#efc76a;font:800 30px/1.05 Cinzel,Georgia,serif}
@@ -55,13 +55,15 @@ h3,h1{font-family:Cinzel,Georgia,serif;margin:0 0 6px;letter-spacing:.5px}
 #wmap{display:none;position:absolute;inset:0;background:#060810ee;z-index:4;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer}
 #wmap canvas{image-rendering:pixelated;border:1px solid #ffffff25;border-radius:8px;max-width:92vw;max-height:78vh}
 #wmap .m{color:var(--mu);font-size:13px}
-#md{display:none;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:80vh;overflow:auto;background:rgba(58,43,36,.98);border-color:#80634f;box-shadow:0 12px 30px #000a;color:#f3e9db}
-#md.chat-mode{width:min(460px,92vw);max-height:82vh;overflow:hidden;padding:10px}
+#md{display:none;box-sizing:border-box;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:80vh;overflow-y:auto;overflow-x:hidden;touch-action:pan-y;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:rgba(58,43,36,.98);border-color:#80634f;box-shadow:0 12px 30px #000a;color:#f3e9db}
+#md.chat-mode{width:min(460px,92vw);max-height:82vh;overflow:hidden;padding:10px;touch-action:auto}
 #md h3{color:#efc76a}
 #md .m{color:#c2a891}
 #md .r{border-bottom-color:#80634f55}
 #md button{background:#3a2b24;border-color:#80634f;color:#efc76a}
 #md button:hover:not(:disabled){background:#503b2c;color:#ffe3a0}
+#md .panel-close{position:sticky;top:0;float:right;z-index:3;width:30px;height:30px;margin:-2px -2px 4px 8px;padding:0;border:1px solid #80634f;border-radius:7px;background:#3a2b24;color:#efc76a;font-size:19px;line-height:1;display:grid;place-items:center}
+#md .panel-close:hover{background:#503b2c;color:#ffe3a0}
 .chat-view{height:min(72vh,620px);min-height:280px;display:flex;flex-direction:column;gap:8px;font-family:Cinzel,Georgia,serif}
 .chat-header{display:flex;align-items:center;gap:9px;min-height:48px;padding:3px 2px 8px;border-bottom:1px solid #80634f88}
 .chat-avatar{flex:0 0 36px;width:36px;height:36px;display:grid;place-items:center;border:1px solid #b48a50;border-radius:50%;background:#6a4d2e;color:#ffe3a0;font:700 16px Cinzel,Georgia,serif}
@@ -83,7 +85,7 @@ h3,h1{font-family:Cinzel,Georgia,serif;margin:0 0 6px;letter-spacing:.5px}
 .m{color:var(--mu);font-size:12px;margin:4px 0}
 button,select,input{font:inherit;border-radius:7px;border:1px solid #ffffff30;background:#1b2231;color:var(--fg);padding:6px 11px}
 button{cursor:pointer;background:#2a3550}button:hover:not(:disabled){background:#3a4a72}button:disabled{opacity:.45;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--ac)}
-#lgn{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,rgba(28,42,63,.46),rgba(8,10,16,.66)),url("../assets/westeros/menus/background.png") center/cover no-repeat;z-index:5;font-family:Cinzel,Georgia,serif}
+#lgn{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 30%,rgba(28,42,63,.46),rgba(8,10,16,.66)),url("../assets/menu/background.png") center/cover no-repeat, url("../assets/westeros/menus/background.png") center/cover no-repeat;z-index:5;font-family:Cinzel,Georgia,serif}
 #lgn .logo{display:block;width:min(560px,92vw);max-height:30vh;object-fit:contain;margin:0 auto -10px}
 #lgn .c{width:min(360px,90vw);display:grid;gap:9px}
 #lgn input{background:#3a2b24;border-color:#80634f;color:#f3e9db}
@@ -111,7 +113,7 @@ button{cursor:pointer;background:#2a3550}button:hover:not(:disabled){background:
 #mobile-buttons button span{font:700 11px Cinzel,Georgia,serif}
 #mobile-buttons button small{font:600 7px Cinzel,Georgia,serif}
 #mobile-aim-line{position:absolute;left:50%;top:50%;height:3px;width:52px;transform-origin:left center;background:#e2b04a;box-shadow:0 0 8px #e2b04a;display:none;pointer-events:none}
-#mobile-hint{position:absolute;left:50%;bottom:calc(96px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:4px 10px;border-radius:10px;background:#10151dcc;color:#fff9;font-size:11px;white-space:nowrap}
+#mobile-hint{display:none!important}
 .mapopen #mobile-dock,.mapopen #mobile-hint{display:none!important}
 @media (max-width:900px),(pointer:coarse){
  #mobile-ui{display:block}
@@ -128,10 +130,10 @@ button{cursor:pointer;background:#2a3550}button:hover:not(:disabled){background:
  .terminal-clock{gap:0;margin-bottom:2px}.terminal-clock h2{font-size:20px}.terminal-clock time{font-size:14px}.terminal-clock div{font-size:10px}
  #log{max-height:34px;font-size:9px;line-height:1.1;gap:1px}
  #mm canvas{width:92px;height:92px}
- #md{max-height:68vh}
+ #md{max-height:calc(100vh - 150px);width:min(440px,calc(100vw - 24px));top:calc(50% + env(safe-area-inset-top,0px));}
 }
 @media (max-width:380px){#mobile-buttons button small{display:none}}
-@media (max-width:480px){#md.chat-mode{width:calc(100vw - 24px);max-height:78vh;padding:8px}.chat-view{height:calc(78vh - 36px);min-height:250px}.chat-feed{padding:8px 6px}.chat-bubble{max-width:88%;font-size:11px}.chat-quick-replies{gap:5px}.chat-quick-replies button{font-size:10px;padding:5px 6px}}
+@media (max-width:480px){#md{max-height:calc(100vh - 136px);padding:10px}#md.chat-mode{width:calc(100vw - 24px);max-height:calc(100vh - 110px);padding:8px}.chat-view{height:calc(78vh - 36px);min-height:250px}.chat-feed{padding:8px 6px}.chat-bubble{max-width:88%;font-size:11px}.chat-quick-replies{gap:5px}.chat-quick-replies button{font-size:10px;padding:5px 6px}}
 @media (min-width:901px) and (pointer:fine){#mobile-ui{display:none!important}}
 body.mobile-controls-enabled #mobile-ui{display:block!important}
 body.no-mobile-controls #mobile-ui{display:none!important;visibility:hidden!important}
@@ -144,5 +146,4 @@ body.mobile-controls-enabled .outfit-label-narrow{display:block}
 body.mobile-controls-enabled .hud-meta{font-size:8px;margin-bottom:2px}
 body.mobile-controls-enabled .status-bar{grid-template-columns:22px 1fr;gap:4px;margin-top:2px;font-size:9px}
 body.mobile-controls-enabled #hud .b{height:7px}
-body.mobile-controls-enabled #mobile-hint{bottom:calc(182px + env(safe-area-inset-bottom,0px))}
 

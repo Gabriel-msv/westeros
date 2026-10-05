@@ -8,6 +8,8 @@
  * ========================================================================== */
 (function(){
   const ui=document.getElementById('mobile-ui');if(!ui)return;
+  // Modais/painéis capturam o toque vertical para permitir rolagem sem mover o personagem.
+  document.addEventListener('pointerdown',e=>{if(e.target.closest('#md,#settings-panel,#wmap'))e.stopPropagation()},true);
   const settingsButton=document.getElementById('settings'),settingsPanel=document.getElementById('settings-panel'),settingsClose=document.getElementById('settings-close'),mobileRadios=[...document.querySelectorAll('input[name="mobile-device"]')],mobilePreferenceKey='got_mobile_device';
   let storedMobilePreference=null;try{storedMobilePreference=localStorage.getItem(mobilePreferenceKey)}catch{}
   let mobileEnabled=storedMobilePreference===null?(matchMedia('(pointer: coarse)').matches||innerWidth<=900):storedMobilePreference==='yes';
