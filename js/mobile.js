@@ -4,14 +4,21 @@
  * Direita: analógico de INTERAÇÃO. Arrastar mira (define a direção P.f); soltar
  *   ataca (Espaço) se houver monstro/cidadão no tile mirado, senão usa E (falar, cortar,
  *   minerar, pescar).
- * Botões: E usar · Q poção · C cavalo · I inventário · M mapa · ⚔ atacar (segure para repetir).
- * Os botões enviam eventos de teclado sintéticos, reaproveitando o tratamento de teclas do game.js.
  * A interface só aparece em telas de toque/estreitas e depois que o personagem entrou no jogo.
  * ========================================================================== */
 (function(){
   const ui=document.getElementById('mobile-ui');if(!ui)return;
+  const settingsButton=document.getElementById('settings'),settingsPanel=document.getElementById('settings-panel'),settingsClose=document.getElementById('settings-close'),mobileRadios=[...document.querySelectorAll('input[name="mobile-device"]')],mobilePreferenceKey='got_mobile_device';
+  let storedMobilePreference=null;try{storedMobilePreference=localStorage.getItem(mobilePreferenceKey)}catch{}
+  let mobileEnabled=storedMobilePreference===null?(matchMedia('(pointer: coarse)').matches||innerWidth<=900):storedMobilePreference==='yes';
+  function setMobileMode(enabled){mobileEnabled=enabled;document.body.classList.toggle('mobile-controls-enabled',enabled);document.body.classList.toggle('no-mobile-controls',!enabled);mobileRadios.forEach(radio=>radio.checked=radio.value===(enabled?'yes':'no'));try{localStorage.setItem(mobilePreferenceKey,enabled?'yes':'no')}catch{}ui.style.visibility=P&&enabled?'visible':'hidden'}
+  setMobileMode(mobileEnabled);
+  settingsButton.addEventListener('click',()=>{settingsPanel.hidden=!settingsPanel.hidden;settingsButton.setAttribute('aria-expanded',String(!settingsPanel.hidden))});
+  settingsClose.addEventListener('click',()=>{settingsPanel.hidden=true;settingsButton.setAttribute('aria-expanded','false')});
+  mobileRadios.forEach(radio=>radio.addEventListener('change',()=>{if(radio.checked)setMobileMode(radio.value==='yes')}));
+  window.addEventListener('keydown',event=>{if(event.key==='Escape'&&!settingsPanel.hidden){settingsPanel.hidden=true;settingsButton.setAttribute('aria-expanded','false')}});
   const mv=document.getElementById('move-stick'),am=document.getElementById('aim-stick'),ln=document.getElementById('mobile-aim-line');
-  const nM=mv.querySelector('.nub'),nA=am.querySelector('.nub'),DEAD=.22,TRAVEL=38;
+  const nM=mv.querySelector('.nub'),nA=am.querySelector('.nub'),DEAD=.22,TRAVEL=25;
   let mid=null,aid=null,aimV=null;
   /** Dispara uma tecla como se o jogador a apertasse (down=true) ou soltasse (false). */
   function key(k,down){window.dispatchEvent(new KeyboardEvent(down?'keydown':'keyup',{key:k}))}
@@ -28,14 +35,11 @@
   /** Soltar: vira para a direção mirada e ataca (se houver alvo hostil à frente) ou interage. */
   function aimEnd(e){if(e.pointerId!==aid)return;aid=null;nA.style.transform='';ln.style.display='none';if(!P||S){aimV=null;return}
     if(aimV)P.f=aimV;aimV=null;const f=P.f||[0,1],x=P.x+f[0],y=P.y+f[1];
-    if(mons.some(m=>m.x==x&&m.y==y)||CZ.some(c=>!c.in&&c.x==x&&c.y==y)){key(' ',true);setTimeout(()=>key(' ',false),180)}else{key('e',true);key('e',false)}}
+    if(mons.some(m=>m.x==x&&m.y==y)){key(' ',true);setTimeout(()=>key(' ',false),180)}else{key('e',true);key('e',false)}}
   am.addEventListener('pointerdown',e=>{aid=e.pointerId;am.setPointerCapture(e.pointerId);aimDrag(e);e.preventDefault()});
   am.addEventListener('pointermove',aimDrag);am.addEventListener('pointerup',aimEnd);am.addEventListener('pointercancel',aimEnd);
-  /** Botões de ação: data-key é a tecla enviada ao jogo. */
-  ui.querySelectorAll('button[data-key]').forEach(b=>{const k=b.dataset.key;
-    b.addEventListener('pointerdown',e=>{e.preventDefault();key(k,true);if(k!==' ')key(k,false)});
-    if(k===' '){const up=()=>key(' ',false);b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('pointerleave',up)}});
+  ui.querySelectorAll('button[data-key]').forEach(button=>{const k=button.dataset.key;button.addEventListener('pointerdown',e=>{e.preventDefault();key(k,true);key(k,false)})});
   window.addEventListener('blur',()=>{moveEnd({pointerId:mid});setMove(0,0)});
   /** A cada 0,3 s: mostra os controles só durante o jogo; esconde os analógicos com o mapa aberto. */
-  setInterval(()=>{ui.style.visibility=P?'visible':'hidden';ui.classList.toggle('mapopen',typeof wmOpen==='function'&&wmOpen())},300);
+  setInterval(()=>{ui.style.visibility=P&&mobileEnabled?'visible':'hidden';ui.classList.toggle('mapopen',typeof wmOpen==='function'&&wmOpen())},300);
 })();

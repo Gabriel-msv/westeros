@@ -34,8 +34,8 @@ Os scripts são clássicos (sem módulos) e compartilham o escopo global; a orde
 12. **Laço:** `rs`, `loop`.
 
 ## IDs de tile
-0 água · 1 areia · 2 grama · 3 floresta · 4 neve · 5 montanha · 6 estrada · 7 rio · 8 chão de cidade · 9 casa · 10 pinheiro nevado · 11 minério · 12 muralha · 13 torre · 14 piso · 15 portão · 16 ponte/cais · 17 porta · 18 gelo · 19 baú.
-Sólidos: 0,3,5,7,9,10,11,12,13,18,19 (conjunto `SOL`).
+0 água · 1 areia · 2 grama · 3 floresta · 4 neve · 5 montanha · 6 estrada · 7 rio · 8 chão de cidade · 9 casa · 10 pinheiro nevado · 11 minério · 12 muralha · 13 torre · 14 piso · 15 portão · 16 ponte/cais · 17 porta · 18 gelo · 19 baú · 20 vau do rio · 21 rio fundo.
+Sólidos: 0,3,5,7,9,10,11,12,13,18,19,21 (conjunto `SOL`).
 
 ## Texturas (regras do spec)
 - Variantes estáticas escolhidas por `H(x,y,seed)` (nunca por quadro): grama 8:1 (`grama2`/`grama3`), areia 8:1, paralelepípedo 8:1.
@@ -44,6 +44,15 @@ Sólidos: 0,3,5,7,9,10,11,12,13,18,19 (conjunto `SOL`).
 
 ## Monstros
 Em `MT`. Grandes têm `big:1` (sprite 64x64 desenhado em 2x2 tiles, colisão de 1 tile): Lobo Gigante, Urso Gigante, Mamute (Norte), Gigante e Gigante Zumbi (além da Muralha, `y < -660`). O Dragonete foi removido.
+
+## Rios
+`RV` define 3 rios por pontos em tiles (Tridente, Mander, Torrente). `riverAt(x,y)` devolve 0/1/2. O centro é **rio fundo** (tile 21, sólido, pescável); as bordas são **vau** (tile 20: atravessável com movimento 1,8x mais lento; monstros não entram). A cada 70 tiles de curso há um vau de 6 tiles que atravessa o centro. Estradas que cruzam um rio viram **ponte** (tile 16, tábuas sobre água). O mapa-múndi desenha os mesmos rios (`RV`). O minimapa mostra o vau em azul-claro e o fundo em azul-escuro.
+
+## Casas rurais
+Grade de células 28x28 (`RCELL`); `ruralCell(i,j)` decide (com cache) se a célula tem uma casa 3x3 (porta embaixo, tile 17). Densidade: 34% na Campina/Terras Fluviais, 24% nas demais, 12% no Norte, 10% em Dorne. Nunca perto de cidades, estradas, rios ou água; perto de rio vira Moinho. Tipos (`RT`): Fazenda, Cabana, Taverna, Moinho, Santuário (o nome aparece sobre o telhado).
+- **Interior:** a mesma sala 7x5 das casas de cidade; `RM.t` guarda o tipo e `RCH` a posição dos baús. Taverna tem Taverneiro (descanso) e Santuário tem Sacerdote (bênção grátis), criados por `setRoom`.
+- **Baús:** `E` de frente para o baú chama `openChest` (loot por tipo; recarrega em 12 min; chave em `P.lt`, salvo no save). Funciona também nas casas das cidades.
+- **Camponeses neutros (`RN`):** um por casa, vagueiam perto da porta e só revidam (fraco) se atacados. Morto, não volta por 5 min.
 
 ## Controles
 Teclado: WASD mover · Espaço atacar · E usar/falar/cortar/minerar/pescar · Q poção · C cavalo · I inventário · M mapa.

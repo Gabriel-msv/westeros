@@ -1,170 +1,42 @@
-/* ============================================================================
- * js/assets.js — carregamento das imagens.
- * Coloque o zip descompactado em:  assets/westeros/...   (ex.: assets/westeros/gramas/grama.png)
- * ASSET_MANIFEST: nome curto usado no código -> caminho dentro de assets/westeros/.
- *   - Terrenos/cidade/árvores: nomes curtos (grama, agua, tijolom, palN ...).
- *   - Personagens/inimigos: o nome do arquivo sem .png (ferreiro_m_norte, mamute_dir ...).
- * Para trocar ou acrescentar uma imagem, edite só este manifesto.
- * Se um arquivo não existir, o console avisa e o jogo usa o desenho antigo em cores.
- * ========================================================================== */
-const ASSET_ROOT='assets/westeros/';
-/** Intervalo (ms) entre quadros da animação da água (agua -> agua1 -> agua2). */
-const WATER_MS=450;
-/** Imagens carregadas, por nome curto. */
-const TX={};
-/** Nome curto -> caminho relativo a ASSET_ROOT. */
-const ASSET_MANIFEST={
-  "agua": "aguas/agua.png",
-  "agua1": "aguas/agua1.png",
-  "agua2": "aguas/agua2.png",
-  "areia": "areias/areia.png",
-  "areia2": "areias/areia2.png",
-  "areiadeserto": "areias/areiadeserto.png",
-  "cacto": "arvores/cacto.png",
-  "carvalho": "arvores/carvalho.png",
-  "palmeira": "arvores/palmeira.png",
-  "pinheiro": "arvores/pinheiro.png",
-  "bau": "cidade/báu.png",
-  "palA": "cidade/paralelepipedoalternativo.png",
-  "palN": "cidade/paralelepipedonormal.png",
-  "pedregulho": "cidade/pedregulho.png",
-  "porta": "cidade/porta.png",
-  "porto": "cidade/porto.png",
-  "tabuas": "cidade/tabuas.png",
-  "telhas": "cidade/telhas.png",
-  "tijolom": "cidade/tijolo marrom.png",
-  "tijolo": "cidade/tijolo.png",
-  "tijolon": "cidade/tijolonegro.png",
-  "estrada": "gramas/estrada .png",
-  "grama": "gramas/grama.png",
-  "grama2": "gramas/grama2.png",
-  "grama3": "gramas/grama3.png",
-  "neve": "gramas/neve.png",
-  "minerio": "pedras/minério.png",
-  "montanha": "pedras/montanha.png",
-  "lobo_gigante_dir": "vivos/inimigos_westeros/animais_grandes_64x64/lobo_gigante_64x64/lobo_gigante_dir.png",
-  "lobo_gigante_esq": "vivos/inimigos_westeros/animais_grandes_64x64/lobo_gigante_64x64/lobo_gigante_esq.png",
-  "mamute_dir": "vivos/inimigos_westeros/animais_grandes_64x64/mamute/mamute_dir.png",
-  "mamute_esq": "vivos/inimigos_westeros/animais_grandes_64x64/mamute/mamute_esq.png",
-  "urso_gigante_dir": "vivos/inimigos_westeros/animais_grandes_64x64/urso_gigante/urso_gigante_dir.png",
-  "urso_gigante_esq": "vivos/inimigos_westeros/animais_grandes_64x64/urso_gigante/urso_gigante_esq.png",
-  "auroque_dir": "vivos/inimigos_westeros/animais_pequenos_32x32/auroque/auroque_dir.png",
-  "auroque_esq": "vivos/inimigos_westeros/animais_pequenos_32x32/auroque/auroque_esq.png",
-  "gato_das_sombras_dir": "vivos/inimigos_westeros/animais_pequenos_32x32/gato_das_sombras/gato_das_sombras_dir.png",
-  "gato_das_sombras_esq": "vivos/inimigos_westeros/animais_pequenos_32x32/gato_das_sombras/gato_das_sombras_esq.png",
-  "javali_dir": "vivos/inimigos_westeros/animais_pequenos_32x32/javali/javali_dir.png",
-  "javali_esq": "vivos/inimigos_westeros/animais_pequenos_32x32/javali/javali_esq.png",
-  "lagarto_leao_dir": "vivos/inimigos_westeros/animais_pequenos_32x32/lagarto_leao/lagarto_leao_dir.png",
-  "lagarto_leao_esq": "vivos/inimigos_westeros/animais_pequenos_32x32/lagarto_leao/lagarto_leao_esq.png",
-  "lobo_dir": "vivos/inimigos_westeros/animais_pequenos_32x32/lobo_32x32/lobo_dir.png",
-  "lobo_esq": "vivos/inimigos_westeros/animais_pequenos_32x32/lobo_32x32/lobo_esq.png",
-  "urso_dir": "vivos/inimigos_westeros/animais_pequenos_32x32/urso/urso_dir.png",
-  "urso_esq": "vivos/inimigos_westeros/animais_pequenos_32x32/urso/urso_esq.png",
-  "gigante": "vivos/inimigos_westeros/gigantes_64x64/gigante/gigante.png",
-  "gigante_zumbi_norte": "vivos/inimigos_westeros/gigantes_64x64/gigante_zumbi/norte/gigante_zumbi_norte.png",
-  "criminoso_campo": "vivos/inimigos_westeros/humanos/criminoso/campo/criminoso_campo.png",
-  "criminoso_dorne": "vivos/inimigos_westeros/humanos/criminoso/dorne/criminoso_dorne.png",
-  "criminoso_norte": "vivos/inimigos_westeros/humanos/criminoso/norte/criminoso_norte.png",
-  "montanhes_campo": "vivos/inimigos_westeros/humanos/montanhes/campo/montanhes_campo.png",
-  "montanhes_dorne": "vivos/inimigos_westeros/humanos/montanhes/dorne/montanhes_dorne.png",
-  "montanhes_norte": "vivos/inimigos_westeros/humanos/montanhes/norte/montanhes_norte.png",
-  "renegado_campo": "vivos/inimigos_westeros/humanos/renegado/campo/renegado_campo.png",
-  "renegado_dorne": "vivos/inimigos_westeros/humanos/renegado/dorne/renegado_dorne.png",
-  "renegado_norte": "vivos/inimigos_westeros/humanos/renegado/norte/renegado_norte.png",
-  "selvagem_norte": "vivos/inimigos_westeros/humanos/selvagem/norte/selvagem_norte.png",
-  "caminhante_branco_norte": "vivos/inimigos_westeros/mortos_vivos/caminhante_branco/norte/caminhante_branco_norte.png",
-  "zumbi_1_campones_campo": "vivos/inimigos_westeros/mortos_vivos/zumbi_1_campones/campo/zumbi_1_campones_campo.png",
-  "zumbi_1_campones_dorne": "vivos/inimigos_westeros/mortos_vivos/zumbi_1_campones/dorne/zumbi_1_campones_dorne.png",
-  "zumbi_1_campones_norte": "vivos/inimigos_westeros/mortos_vivos/zumbi_1_campones/norte/zumbi_1_campones_norte.png",
-  "zumbi_2_aldea_campo": "vivos/inimigos_westeros/mortos_vivos/zumbi_2_aldea/campo/zumbi_2_aldea_campo.png",
-  "zumbi_2_aldea_dorne": "vivos/inimigos_westeros/mortos_vivos/zumbi_2_aldea/dorne/zumbi_2_aldea_dorne.png",
-  "zumbi_2_aldea_norte": "vivos/inimigos_westeros/mortos_vivos/zumbi_2_aldea/norte/zumbi_2_aldea_norte.png",
-  "zumbi_3_soldado_campo": "vivos/inimigos_westeros/mortos_vivos/zumbi_3_soldado/campo/zumbi_3_soldado_campo.png",
-  "zumbi_3_soldado_dorne": "vivos/inimigos_westeros/mortos_vivos/zumbi_3_soldado/dorne/zumbi_3_soldado_dorne.png",
-  "zumbi_3_soldado_norte": "vivos/inimigos_westeros/mortos_vivos/zumbi_3_soldado/norte/zumbi_3_soldado_norte.png",
-  "zumbi_4_nobre_campo": "vivos/inimigos_westeros/mortos_vivos/zumbi_4_nobre/campo/zumbi_4_nobre_campo.png",
-  "zumbi_4_nobre_dorne": "vivos/inimigos_westeros/mortos_vivos/zumbi_4_nobre/dorne/zumbi_4_nobre_dorne.png",
-  "zumbi_4_nobre_norte": "vivos/inimigos_westeros/mortos_vivos/zumbi_4_nobre/norte/zumbi_4_nobre_norte.png",
-  "zumbi_5_sacerdote_campo": "vivos/inimigos_westeros/mortos_vivos/zumbi_5_sacerdote/campo/zumbi_5_sacerdote_campo.png",
-  "zumbi_5_sacerdote_dorne": "vivos/inimigos_westeros/mortos_vivos/zumbi_5_sacerdote/dorne/zumbi_5_sacerdote_dorne.png",
-  "zumbi_5_sacerdote_norte": "vivos/inimigos_westeros/mortos_vivos/zumbi_5_sacerdote/norte/zumbi_5_sacerdote_norte.png",
-  "campones_f_campo": "vivos/npc/01_campones/campo/campones_f_campo.png",
-  "campones_m_campo": "vivos/npc/01_campones/campo/campones_m_campo.png",
-  "campones_f_dorne": "vivos/npc/01_campones/dorne/campones_f_dorne.png",
-  "campones_m_dorne": "vivos/npc/01_campones/dorne/campones_m_dorne.png",
-  "campones_f_norte": "vivos/npc/01_campones/norte/campones_f_norte.png",
-  "campones_m_norte": "vivos/npc/01_campones/norte/campones_m_norte.png",
-  "soldado_f_campo": "vivos/npc/02_soldado/campo/soldado_f_campo.png",
-  "soldado_m_campo": "vivos/npc/02_soldado/campo/soldado_m_campo.png",
-  "soldado_f_dorne": "vivos/npc/02_soldado/dorne/soldado_f_dorne.png",
-  "soldado_m_dorne": "vivos/npc/02_soldado/dorne/soldado_m_dorne.png",
-  "soldado_f_norte": "vivos/npc/02_soldado/norte/soldado_f_norte.png",
-  "soldado_m_norte": "vivos/npc/02_soldado/norte/soldado_m_norte.png",
-  "guarda_f_campo": "vivos/npc/03_guarda/campo/guarda_f_campo.png",
-  "guarda_m_campo": "vivos/npc/03_guarda/campo/guarda_m_campo.png",
-  "guarda_f_dorne": "vivos/npc/03_guarda/dorne/guarda_f_dorne.png",
-  "guarda_m_dorne": "vivos/npc/03_guarda/dorne/guarda_m_dorne.png",
-  "guarda_f_norte": "vivos/npc/03_guarda/norte/guarda_f_norte.png",
-  "guarda_m_norte": "vivos/npc/03_guarda/norte/guarda_m_norte.png",
-  "mercador_f_campo": "vivos/npc/04_mercador/campo/mercador_f_campo.png",
-  "mercador_m_campo": "vivos/npc/04_mercador/campo/mercador_m_campo.png",
-  "mercador_f_dorne": "vivos/npc/04_mercador/dorne/mercador_f_dorne.png",
-  "mercador_m_dorne": "vivos/npc/04_mercador/dorne/mercador_m_dorne.png",
-  "mercador_f_norte": "vivos/npc/04_mercador/norte/mercador_f_norte.png",
-  "mercador_m_norte": "vivos/npc/04_mercador/norte/mercador_m_norte.png",
-  "taverneiro_f_campo": "vivos/npc/05_taverneiro/campo/taverneiro_f_campo.png",
-  "taverneiro_m_campo": "vivos/npc/05_taverneiro/campo/taverneiro_m_campo.png",
-  "taverneiro_f_dorne": "vivos/npc/05_taverneiro/dorne/taverneiro_f_dorne.png",
-  "taverneiro_m_dorne": "vivos/npc/05_taverneiro/dorne/taverneiro_m_dorne.png",
-  "taverneiro_f_norte": "vivos/npc/05_taverneiro/norte/taverneiro_f_norte.png",
-  "taverneiro_m_norte": "vivos/npc/05_taverneiro/norte/taverneiro_m_norte.png",
-  "mendigo_f_campo": "vivos/npc/06_mendigo/campo/mendigo_f_campo.png",
-  "mendigo_m_campo": "vivos/npc/06_mendigo/campo/mendigo_m_campo.png",
-  "mendigo_f_dorne": "vivos/npc/06_mendigo/dorne/mendigo_f_dorne.png",
-  "mendigo_m_dorne": "vivos/npc/06_mendigo/dorne/mendigo_m_dorne.png",
-  "mendigo_f_norte": "vivos/npc/06_mendigo/norte/mendigo_f_norte.png",
-  "mendigo_m_norte": "vivos/npc/06_mendigo/norte/mendigo_m_norte.png",
-  "ferreiro_f_campo": "vivos/npc/07_ferreiro/campo/ferreiro_f_campo.png",
-  "ferreiro_m_campo": "vivos/npc/07_ferreiro/campo/ferreiro_m_campo.png",
-  "ferreiro_f_dorne": "vivos/npc/07_ferreiro/dorne/ferreiro_f_dorne.png",
-  "ferreiro_m_dorne": "vivos/npc/07_ferreiro/dorne/ferreiro_m_dorne.png",
-  "ferreiro_f_norte": "vivos/npc/07_ferreiro/norte/ferreiro_f_norte.png",
-  "ferreiro_m_norte": "vivos/npc/07_ferreiro/norte/ferreiro_m_norte.png",
-  "sacerdote_f_campo": "vivos/npc/08_sacerdote/campo/sacerdote_f_campo.png",
-  "sacerdote_m_campo": "vivos/npc/08_sacerdote/campo/sacerdote_m_campo.png",
-  "sacerdote_f_dorne": "vivos/npc/08_sacerdote/dorne/sacerdote_f_dorne.png",
-  "sacerdote_m_dorne": "vivos/npc/08_sacerdote/dorne/sacerdote_m_dorne.png",
-  "sacerdote_f_norte": "vivos/npc/08_sacerdote/norte/sacerdote_f_norte.png",
-  "sacerdote_m_norte": "vivos/npc/08_sacerdote/norte/sacerdote_m_norte.png",
-  "maester_f_campo": "vivos/npc/09_maester/campo/maester_f_campo.png",
-  "maester_m_campo": "vivos/npc/09_maester/campo/maester_m_campo.png",
-  "maester_f_dorne": "vivos/npc/09_maester/dorne/maester_f_dorne.png",
-  "maester_m_dorne": "vivos/npc/09_maester/dorne/maester_m_dorne.png",
-  "maester_f_norte": "vivos/npc/09_maester/norte/maester_f_norte.png",
-  "maester_m_norte": "vivos/npc/09_maester/norte/maester_m_norte.png",
-  "prostituta_f_campo": "vivos/npc/10_prostituta/campo/prostituta_f_campo.png",
-  "prostituta_m_campo": "vivos/npc/10_prostituta/campo/prostituta_m_campo.png",
-  "prostituta_f_dorne": "vivos/npc/10_prostituta/dorne/prostituta_f_dorne.png",
-  "prostituta_m_dorne": "vivos/npc/10_prostituta/dorne/prostituta_m_dorne.png",
-  "prostituta_f_norte": "vivos/npc/10_prostituta/norte/prostituta_f_norte.png",
-  "prostituta_m_norte": "vivos/npc/10_prostituta/norte/prostituta_m_norte.png",
-  "carpinteiro_f_campo": "vivos/npc/11_carpinteiro/campo/carpinteiro_f_campo.png",
-  "carpinteiro_m_campo": "vivos/npc/11_carpinteiro/campo/carpinteiro_m_campo.png",
-  "carpinteiro_f_dorne": "vivos/npc/11_carpinteiro/dorne/carpinteiro_f_dorne.png",
-  "carpinteiro_m_dorne": "vivos/npc/11_carpinteiro/dorne/carpinteiro_m_dorne.png",
-  "carpinteiro_f_norte": "vivos/npc/11_carpinteiro/norte/carpinteiro_f_norte.png",
-  "carpinteiro_m_norte": "vivos/npc/11_carpinteiro/norte/carpinteiro_m_norte.png",
-  "viajante_f_campo": "vivos/npc/12_viajante/campo/viajante_f_campo.png",
-  "viajante_m_campo": "vivos/npc/12_viajante/campo/viajante_m_campo.png",
-  "viajante_f_dorne": "vivos/npc/12_viajante/dorne/viajante_f_dorne.png",
-  "viajante_m_dorne": "vivos/npc/12_viajante/dorne/viajante_m_dorne.png",
-  "viajante_f_norte": "vivos/npc/12_viajante/norte/viajante_f_norte.png",
-  "viajante_m_norte": "vivos/npc/12_viajante/norte/viajante_m_norte.png",
-  "baratheon": "vivos/player/baratheon.png",
-  "lennister": "vivos/player/lennister.png",
-  "stark": "vivos/player/stark.png",
-  "targeryan": "vivos/player/targeryan.png"
-};
-/** Cria um Image por entrada do manifesto; avisa no console se faltar arquivo. */
-function TXload(o){for(const k in o){const i=new Image();i.onerror=()=>console.warn('Asset ausente: '+ASSET_ROOT+o[k]);i.src=ASSET_ROOT+encodeURI(o[k]);TX[k]=i}}
-TXload(ASSET_MANIFEST);
+const WATER_MS=320,ASSET_MANIFEST=Object.create(null),TX=Object.create(null);
+const asset=(name,path)=>{ASSET_MANIFEST[name]='assets/westeros/'+path};
+
+[
+ ['agua','aguas/agua.png'],['agua1','aguas/agua1.png'],['agua2','aguas/agua2.png'],
+ ['areia','areias/areia.png'],['areia2','areias/areia2.png'],['areiadeserto','areias/areiadeserto.png'],
+ ['cacto','arvores/cacto.png'],['carvalho','arvores/carvalho.png'],['palmeira','arvores/palmeira.png'],['pinheiro','arvores/pinheiro.png'],
+ ['báu','cidade/báu.png'],['bau','cidade/báu.png'],['palA','cidade/paralelepipedoalternativo.png'],['palN','cidade/paralelepipedonormal.png'],['pedregulho','cidade/pedregulho.png'],['porta','cidade/porta.png'],['porto','cidade/porto.png'],['tabuas','cidade/tabuas.png'],['telhas','cidade/telhas.png'],['tijolom','cidade/tijolo marrom.png'],['tijolo','cidade/tijolo.png'],['tijolon','cidade/tijolonegro.png'],
+ ['estrada','gramas/estrada .png'],['grama','gramas/grama.png'],['grama2','gramas/grama2.png'],['grama3','gramas/grama3.png'],['neve','gramas/neve.png'],
+ ['minério','pedras/minério.png'],['minerio','pedras/minério.png'],['montanha','pedras/montanha.png'],
+ ['baratheon','vivos/player/baratheon.png'],['lennister','vivos/player/lennister.png'],['stark','vivos/player/stark.png'],['targeryan','vivos/player/targeryan.png']
+].forEach(([name,path])=>asset(name,path));
+
+const regions=['campo','dorne','norte'],genders=['m','f'];
+const npcFolders={campones:'01_campones',soldado:'02_soldado',guarda:'03_guarda',mercador:'04_mercador',taverneiro:'05_taverneiro',mendigo:'06_mendigo',ferreiro:'07_ferreiro',sacerdote:'08_sacerdote',maester:'09_maester',prostituta:'10_prostituta',carpinteiro:'11_carpinteiro',viajante:'12_viajante'};
+for(const [name,folder]of Object.entries(npcFolders))for(const region of regions)for(const gender of genders)asset(`${name}_${gender}_${region}`,`vivos/npc/${folder}/${region}/${name}_${gender}_${region}.png`);
+
+for(const region of regions){
+ asset(`renegado_${region}`,`vivos/inimigos_westeros/humanos/renegado/${region}/renegado_${region}.png`);
+ asset(`criminoso_${region}`,`vivos/inimigos_westeros/humanos/criminoso/${region}/criminoso_${region}.png`);
+ asset(`montanhes_${region}`,`vivos/inimigos_westeros/humanos/montanhes/${region}/montanhes_${region}.png`);
+ asset(`zumbi_1_campones_${region}`,`vivos/inimigos_westeros/mortos_vivos/zumbi_1_campones/${region}/zumbi_1_campones_${region}.png`);
+ asset(`zumbi_2_aldea_${region}`,`vivos/inimigos_westeros/mortos_vivos/zumbi_2_aldea/${region}/zumbi_2_aldea_${region}.png`);
+ asset(`zumbi_3_soldado_${region}`,`vivos/inimigos_westeros/mortos_vivos/zumbi_3_soldado/${region}/zumbi_3_soldado_${region}.png`);
+ asset(`zumbi_4_nobre_${region}`,`vivos/inimigos_westeros/mortos_vivos/zumbi_4_nobre/${region}/zumbi_4_nobre_${region}.png`);
+ asset(`zumbi_5_sacerdote_${region}`,`vivos/inimigos_westeros/mortos_vivos/zumbi_5_sacerdote/${region}/zumbi_5_sacerdote_${region}.png`);
+}
+asset('selvagem_norte','vivos/inimigos_westeros/humanos/selvagem/norte/selvagem_norte.png');
+asset('caminhante_branco_norte','vivos/inimigos_westeros/mortos_vivos/caminhante_branco/norte/caminhante_branco_norte.png');
+for(const name of ['lobo_gigante','urso_gigante','mamute'])for(const direction of ['esq','dir']){
+ const folder=name==='lobo_gigante'?'lobo_gigante_64x64':name;
+ asset(`${name}_${direction}`,`vivos/inimigos_westeros/animais_grandes_64x64/${folder}/${name}_${direction}.png`);
+}
+asset('gigante','vivos/inimigos_westeros/gigantes_64x64/gigante/gigante.png');
+asset('gigante_zumbi_norte','vivos/inimigos_westeros/gigantes_64x64/gigante_zumbi/norte/gigante_zumbi_norte.png');
+for(const name of ['lobo','urso','auroque','gato_das_sombras','javali','lagarto_leao'])for(const direction of ['esq','dir']){
+ const folder=name==='lobo'?'lobo_32x32':name;
+ asset(`${name}_${direction}`,`vivos/inimigos_westeros/animais_pequenos_32x32/${folder}/${name}_${direction}.png`);
+}
+
+function TXload(name,path){const image=new Image();image.decoding='async';image.onerror=()=>console.warn('Imagem ausente:',path);image.src=encodeURI(path);TX[name]=image;return image}
+Object.entries(ASSET_MANIFEST).forEach(([name,path])=>TXload(name,path));

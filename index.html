@@ -4,15 +4,47 @@
 <title>Crônicas de Westeros</title>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-</head><body><body>
+</head><body>
 <canvas id="g"></canvas>
-<div id="hud" class="p"><h3 id="nm"></h3><div id="st" class="m"></div><div class="b"><i id="hb" style="background:#d9463c"></i></div><div class="b"><i id="xb" style="background:#5fa8e0"></i></div><div id="gd"></div><button id="out" style="margin-top:6px;padding:3px 9px;font-size:12px">Sair e salvar</button></div>
+<div id="top-actions"><button id="out">◀ Salvar e sair</button><button id="btn-reino" type="button" title="Reino e Exército (R)">👑 Reino</button><button id="settings" type="button" aria-label="Configurações" aria-expanded="false" aria-controls="settings-panel" title="Configurações">⚙</button></div>
+<section id="mission-panel" aria-label="Missões ativas"></section>
+<section id="settings-panel" class="p" role="dialog" aria-labelledby="settings-title" hidden>
+  <div class="settings-head"><strong id="settings-title">Configurações</strong><button id="settings-close" type="button" aria-label="Fechar configurações">×</button></div>
+  <fieldset>
+    <legend>Dispositivo móvel</legend>
+    <label><input type="radio" name="mobile-device" value="yes"> Sim</label>
+    <label><input type="radio" name="mobile-device" value="no"> Não</label>
+  </fieldset>
+</section>
+<div id="hud" class="p">
+  <div class="status-grid">
+    <div class="status-cell"><span>NOME</span><strong id="nm"></strong></div>
+    <div class="status-cell"><span>DEF</span><strong id="def"></strong></div>
+    <div class="status-cell"><span>ATK</span><strong id="atk"></strong></div>
+    <div class="status-cell"><span>ARMA</span><strong id="weapon"></strong></div>
+    <div class="status-cell"><span class="outfit-label-wide">VESTIMENTA</span><span class="outfit-label-narrow">VEST.</span><strong id="outfit"></strong></div>
+    <div class="status-cell"><span>POÇÕES</span><strong id="potions"></strong></div>
+  </div>
+  <div class="hud-meta"><span id="level"></span><span id="coins"></span></div>
+  <div class="status-bar"><span id="hp-label">HP</span><div class="b"><i id="hb" style="background:#b72a2a"></i></div></div>
+  <div class="status-bar"><span id="xp-label">XP</span><div class="b"><i id="xb" style="background:#7dbeb1"></i></div></div>
+</div>
+<section id="inventory-panel" class="p" aria-label="Inventário">
+  <div class="inventory-head"><span id="inv-weight"></span><button id="inventory-toggle" class="inventory-toggle" type="button" aria-expanded="true" aria-controls="inventory-body" title="Recolher inventário"><span class="inventory-arrow" aria-hidden="true">▲</span><strong>INVENTÁRIO</strong></button><span></span></div>
+  <div id="inventory-body" class="inventory-body"><div id="inventory-grid" class="inventory-grid"></div></div>
+</section>
 <div id="mm" class="p"><canvas id="mmc" width="61" height="61"></canvas></div>
-<div id="log" class="p"></div>
+<section id="terminal" aria-label="Horário e histórico do jogo">
+  <header class="terminal-clock">
+    <h2>HORÁRIO</h2>
+    <time id="game-time">08:00</time>
+    <div id="game-date">DIA 001 · ANO 01</div>
+  </header>
+  <div id="log" aria-live="polite"></div>
+</section>
 <div id="md" class="p"></div>
 <div id="wmap"><canvas id="wmc"></canvas><div id="wmb"><button id="wz1">+</button><button id="wz2">−</button><button id="wx">✕</button></div><div class="m" id="wmh">Arraste para mover · roda do mouse ou pinça para zoom · ESC ou M fecha</div></div>
-<div id="lgn"><div class="c">
-<h1>Crônicas de Westeros</h1><div class="s">Uma aventura solo entre a Muralha e o Rochedo</div>
+<div id="lgn"><img class="logo" src="assets/westeros/menus/cronicasdewesteros.png" alt="Crônicas de Westeros"><div class="c">
 <input id="u" placeholder="Nome de usuário" maxlength="16" autocomplete="username">
 <input id="pw" type="password" placeholder="Senha" autocomplete="current-password">
 <input id="cn" placeholder="Nome do personagem (3-16, só ao criar conta)" maxlength="16"><select id="cs"></select><select id="hs"><option value="S">Casa Stark — +20 de vida</option><option value="L">Casa Lannister — +250 de ouro</option><option value="T">Casa Targaryen — +3 de ataque</option><option value="B">Casa Baratheon — +2 de defesa</option></select>
@@ -22,16 +54,22 @@
 </div></div>
 <!-- Controles de toque (estilizados em css/style.css, lógica em js/mobile.js) -->
 <div id="mobile-ui">
-  <div id="move-stick" class="mobile-stick"><div class="nub"></div><div class="mobile-label">Mover</div></div>
-  <div id="aim-stick" class="mobile-stick"><div class="nub"></div><div class="mobile-label">Interagir</div></div>
-  <div id="mobile-aim-line"></div>
-  <div id="mobile-hint">Esquerda: mover · Direita: arrastar para mirar, soltar para agir</div>
-  <div id="mobile-buttons">
-    <button data-key="e">E<br><small>usar</small></button><button data-key="q">Q<br><small>cura</small></button><button data-key="c">C<br><small>cavalo</small></button>
-    <button data-key="i">I<br><small>itens</small></button><button data-key="m">M<br><small>mapa</small></button><button data-key=" ">⚔<br><small>atacar</small></button>
+  <div id="mobile-dock">
+    <div id="move-stick" class="mobile-stick"><div class="nub"></div><div class="mobile-label">Mover</div></div>
+    <div id="mobile-buttons" aria-label="Ações rápidas">
+      <button type="button" data-key="e" aria-label="Usar"><span>E</span><small>USAR</small></button>
+      <button type="button" data-key="q" aria-label="Usar poção"><span>Q</span><small>POÇÃO</small></button>
+      <button type="button" data-key="c" aria-label="Montar ou desmontar"><span>C</span><small>CAVALO</small></button>
+      <button type="button" data-key="r" aria-label="Reino e Exército"><span>R</span><small>REINO</small></button>
+      <button type="button" data-key="i" aria-label="Abrir inventário"><span>I</span><small>ITENS</small></button>
+    </div>
+    <div id="aim-stick" class="mobile-stick"><div class="nub"></div><div class="mobile-label">Interagir</div><div id="mobile-aim-line"></div></div>
   </div>
+  <div id="mobile-hint">Esquerda: mover · Direita: arrastar para mirar, soltar para agir</div>
 </div>
 <script src="js/assets.js"></script>
 <script src="js/game.js"></script>
+<script src="js/reino-frases.js"></script>
+<script src="js/reino.js"></script>
 <script src="js/mobile.js"></script>
 </body></html>
