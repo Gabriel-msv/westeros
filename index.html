@@ -43,11 +43,11 @@
 </section>
 <div id="md" class="p" role="dialog" aria-modal="true"></div>
 <div id="wmap"><canvas id="wmc"></canvas><div id="wmb"><button id="wz1">+</button><button id="wz2">−</button><button id="wx">✕</button></div><div class="m" id="wmh">Arraste para mover · roda do mouse ou pinça para zoom · ESC ou M fecha</div></div>
-<div id="lgn"><img class="logo" src="assets/westeros/menus/cronicasdewesteros.png" alt="Crônicas de Westeros"><div class="c">
+<div id="lgn"><header class="login-brand"><img class="login-logo" src="assets/westeros/menu/titulodourado.png" alt="Crônicas de Westeros"><div class="brand-rule" aria-hidden="true"></div><p>jogo inspirado no mundo de Game of Thrones</p></header><div class="c">
 <input id="u" placeholder="Nome de usuário" maxlength="16" autocomplete="username">
 <input id="pw" type="password" placeholder="Senha" autocomplete="current-password">
 <input id="cn" placeholder="Nome do personagem (3-16, só ao criar conta)" maxlength="16"><select id="cs"></select><select id="hs"><option value="S">Casa Stark — +20 de vida</option><option value="L">Casa Lannister — +250 de ouro</option><option value="T">Casa Targaryen — +3 de ataque</option><option value="B">Casa Baratheon — +2 de defesa</option></select>
-<div style="display:flex;gap:8px"><button id="bi" style="flex:1">Entrar</button><button id="br" style="flex:1">Criar conta</button></div>
+<div class="login-actions"><button id="bi">Entrar</button><button id="br">Criar conta</button></div>
 <div id="err"></div>
 <div class="m">A casa só vale para contas novas. Contas e progresso ficam salvos no servidor, com save automático.</div>
 </div></div>
@@ -67,6 +67,7 @@
 </div>
 <script src="js/assets.js"></script>
 <script src="js/game.js"></script>
+<script src="js/mapa.js"></script>
 <script src="js/reino-frases.js"></script>
 <script src="js/reino.js"></script>
 <script src="js/mobile.js"></script>

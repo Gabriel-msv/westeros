@@ -15,139 +15,9 @@ const H=(x,y,s=0)=>{let h=Math.imul(x|0,374761393)^Math.imul(y|0,668265263)^Math
 const sm=t=>t*t*(3-2*t);
 /** Ruído de valor suave (value noise) para terreno. */
 const VN=(x,y,s)=>{const i=Math.floor(x),j=Math.floor(y),u=sm(x-i),v=sm(y-j),a=H(i,j,s),b=H(i+1,j,s),c=H(i,j+1,s),d=H(i+1,j+1,s);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v};
-/* ===== mundo ===== */
-/** Lista das 33 localidades: n=nome, r=região, x/y=posição, t=tipo. Índice vira t.i. */
-const TW=[
-/* Terras da Coroa */
-{n:'Porto Real',r:'Terras da Coroa',x:350,y:650,t:'city'},
-{n:'Pedra do Dragão',r:'Terras da Coroa',x:700,y:650,t:'fort'},
-{n:'Descendente',r:'Terras da Coroa',x:600,y:500,t:'town'},
-/* O Norte */
-{n:'Winterfell',r:'O Norte',x:-250,y:-350,t:'fort'},
-{n:'Porto Branco',r:'O Norte',x:600,y:-50,t:'city'},
-{n:'Forte do Pavor',r:'O Norte',x:300,y:-300,t:'fort'},
-{n:'Fosso Cailin',r:'O Norte',x:-150,y:100,t:'fort'},
-{n:'Muralha / Castle Black',r:'O Norte',x:0,y:-650,t:'wall'},
-/* A Campina */
-{n:'Vilavelha / Torralta',r:'A Campina',x:-600,y:1450,t:'city'},
-{n:'Jardim de Cima',r:'A Campina',x:-150,y:1050,t:'fort'},
-{n:'Monte Chifre',r:'A Campina',x:-550,y:1200,t:'fort'},
-/* Terras do Oeste */
-{n:'Rochedo Casterly',r:'Terras do Oeste',x:-800,y:850,t:'fort'},
-{n:'Lannisporto',r:'Terras do Oeste',x:-650,y:1050,t:'city'},
-{n:'Dente de Ouro',r:'Terras do Oeste',x:-1050,y:500,t:'fort'},
-/* Vale de Arryn */
-{n:'Ninho das Águias',r:'Vale de Arryn',x:850,y:250,t:'fort'},
-{n:'Porta da Lua',r:'Vale de Arryn',x:750,y:450,t:'fort'},
-{n:'Vila Gulltown',r:'Vale de Arryn',x:1050,y:500,t:'city'},
-/* Terras Fluviais */
-{n:'Correntexa',r:'Terras Fluviais',x:0,y:350,t:'fort'},
-{n:'Harrenhal',r:'Terras Fluviais',x:300,y:300,t:'ruin'},
-{n:'As Gêmeas',r:'Terras Fluviais',x:-350,y:250,t:'fort'},
-{n:'Poço da Donzela',r:'Terras Fluviais',x:550,y:350,t:'town'},
-/* Terras da Tempestade */
-{n:'Ponta da Tempestade',r:'Terras da Tempestade',x:500,y:1000,t:'fort'},
-{n:'Ninho do Corvo',r:'Terras da Tempestade',x:800,y:900,t:'fort'},
-/* Dorne */
-{n:'Lance do Sol / Cidade da Sombra',r:'Dorne',x:900,y:1900,t:'city'},
-{n:'Jardins da Água',r:'Dorne',x:500,y:1650,t:'palace'},
-{n:'Tombastelo',r:'Dorne',x:-50,y:1750,t:'fort'},
-/* Ilhas de Ferro */
-{n:'Pyke',r:'Ilhas de Ferro',x:-1200,y:600,t:'fort'},
-/* Além da Muralha */
-{n:'Ancoradouro Duro',r:'Além da Muralha',x:350,y:-1100,t:'ruin'},
-{n:'Seagard',r:'Terras Fluviais',x:-320,y:80,t:'fort'},
-{n:'Última Lareira',r:'O Norte',x:150,y:-450,t:'fort'},
-{n:'Karhold',r:'O Norte',x:600,y:-380,t:'fort'},
-{n:'Ponte Amarga',r:'Terras da Tempestade',x:350,y:800,t:'town'},
-{n:'Yronwood',r:'Dorne',x:200,y:1600,t:'fort'}
-].map((t,i)=>({...t,i}));
-$('cs').innerHTML=TW.map(t=>`<option value=${t.i}>Cidade inicial: ${t.n}</option>`).join('');
-/** Pares de índices de TW ligados por estrada. */
-const RL=[];for(let i=0;i<27;i++)RL.push([i,i+1]);RL.push([28,19],[29,3],[30,29],[31,21],[32,24]);
-/** Layouts próprios: índice da cidade -> [código, meia-largura, meia-altura]. */
-const LS={3:['wf',14,11],7:['cb',12,8],0:['pr',16,12],11:['cr',12,10],14:['ea',10,10],18:['hh',15,11],26:['py',12,9],1:['dr',12,10]};
-TW.forEach(t=>{const l=LS[t.i];t.k=l?l[0]:0;t.rx=l?l[1]:8;t.ry=l?l[2]:7});
-/** Devolve a cidade cuja área (com margem m) contém (x,y), ou undefined. */
-const inTown=(x,y,m=0)=>TW.find(t=>Math.abs(x-t.x)<=t.rx+m&&Math.abs(y-t.y)<=t.ry+m);
-/** Gera casas 3x3 com porta (tile 17) embaixo, nos centros dados. */
-const HSE=(dx,dy,L)=>{for(const[a,b]of L)if(Math.abs(dx-a)<=1&&Math.abs(dy-b)<=1)return(dx==a&&dy==b+1)?17:9;return 0};
-/** Interior das casas: sala fixa 7x5 em (20000,20000). Devolve o id do tile para (x,y). */
-function room(x,y){const a=x-20000,b=y-20000;if(a<0||a>6||b<0||b>4||a==0||a==6||b==0)return 12;if(b==4)return a==3?17:12;return(RCH[RM.t]||[[5,1]]).some(([p,q])=>p==a&&q==b)?19:14}
-/** Layout dos 8 lugares emblemáticos (k = wf/cb/pr/cr/ea/hh/py/dr) em coordenadas relativas ao centro da cidade. */
-function lay(k,dx,dy){const B=(a,b)=>Math.abs(dx)<=a&&Math.abs(dy)<=b,R=(a,b)=>B(a,b)&&!B(a-1,b-1),cr=(a,b)=>Math.abs(dx)==a&&Math.abs(dy)==b,W=(a,b)=>R(a,b)?(cr(a,b)?13:(dx==0||dy==0?15:12)):0;let t;
- if(k=='wf'){t=W(13,10)||W(7,5)||HSE(dx,dy,[[10,-8],[10,3],[-5,8],[5,8]]);if(t)return t;if(B(13,10)&&!B(7,5)){if(dx<-8&&dy<-4)return(dx+dy)%3?3:10;if(dx<-8&&dy>5)return 0}return B(13,10)?14:8}
- if(k=='cb'){if(dy==-7||dy==-6)return Math.abs(dx)<=1?15:18;if(dy==-8)return 4;return W(7,4)||HSE(dx,dy,[[-10,2],[10,2]])||(B(7,4)?14:8)}
- if(k=='pr'){if(dy>8)return dx%4==0&&dy<=11?16:0;t=W(15,8);if(t)return t;const a=dx-8,b=dy+4;if(Math.abs(a)<=4&&Math.abs(b)<=3){if(Math.abs(a)==4||Math.abs(b)==3)return(a==0&&b==3)?15:(Math.abs(a)==4&&Math.abs(b)==3?13:12);return(a==0&&b==0)?13:14}return HSE(dx,dy,[[-11,-5],[-11,3],[-6,-5],[-6,5],[5,4],[11,4]])||8}
- if(k=='cr'){if(dx<=-9)return 0;if(dy>=7)return dx%4==0?16:0;if(dy<=-4&&dx>=-8&&dx<=8){if(dx==0&&dy==-4)return 15;if(dy==-10&&dx==0)return 13;if(Math.abs(dx)<=3&&dy<=-5&&dy>=-8)return 14;return 5}return HSE(dx,dy,[[-6,2],[6,2],[-5,5],[5,5]])||8}
- if(k=='ea'){if([[-4,-4],[-2,-5],[2,-5],[4,-4],[-4,4],[4,4],[0,-5],[1,9],[-1,8],[1,7]].some(([a,b])=>a==dx&&b==dy))return 13;if(R(5,5))return(dx==0&&dy==5)?15:12;if(B(4,4)||(dx==0&&dy>5))return 14;return 5}
- if(k=='hh'){if(dy<=-9)return 0;if(dy==-8)return 1;if([[-10,-6],[10,-6],[-10,6],[10,6],[0,-6]].some(([a,b])=>Math.abs(dx-a)<=1&&Math.abs(dy-b)<=1))return 13;if(R(12,7))return H(dx,dy,3)>.78?14:12;return B(12,7)?((dx+dy)%7==0?8:14):8}
- if(k=='py'){for(const[a,b]of[[10,0],[-10,0],[0,-8],[0,8]]){if(dx==a&&dy==b)return 13;if(Math.abs(dx-a)<=1&&Math.abs(dy-b)<=1)return 14}if((dy==0&&Math.abs(dx)>=6&&Math.abs(dx)<=9)||(dx==0&&Math.abs(dy)>=4&&Math.abs(dy)<=7))return 16;if(R(5,3))return cr(5,3)?13:((dy==0&&Math.abs(dx)==5)||(dx==0&&Math.abs(dy)==3))?15:12;return B(5,3)?14:0}
- if(k=='dr'){if((dx/10)**2+(dy/8)**2>1)return dx==0&&dy>=9?16:0;t=W(7,4);if(t)return t;if(B(6,3))return 14;if(dy<-5&&Math.abs(dx)<=4)return 5;return 1}
- return 8}
-/** Diz se (x,y) está sobre uma estrada (ligações da lista RL, em L: horizontal e depois vertical). */
-function road(x,y){if((x==0||x==1)&&y<=-52&&y>=-70)return 1;for(const[p,q]of RL){const a=TW[p],b=TW[q];if(y-a.y>=0&&y-a.y<=1&&x>=Math.min(a.x,b.x)&&x<=Math.max(a.x,b.x)+1)return 1;if(x-b.x>=0&&x-b.x<=1&&y>=Math.min(a.y,b.y)&&y<=Math.max(a.y,b.y)+1)return 1}return 0}
-/* ===== rios e casas rurais ===== */
-/** Rios: p = pontos (x,y) em tiles. Centro fundo (tile 21, sólido); bordas e vaus (tile 20, atravessável e lento). Estradas cruzam por ponte (tile 16). */
-const RV=[
-{n:'Tridente',p:[[-330,260],[-180,300],[-10,352],[120,400],[240,470],[300,560],[335,640]]},
-{n:'Mander',p:[[180,880],[40,960],[-60,1015],[-150,1064],[-290,1130],[-440,1200],[-560,1270]]},
-{n:'Torrente',p:[[120,1480],[230,1380],[330,1290],[430,1200],[520,1110],[600,1040]]}];
-RV.forEach(r=>{let L=0;r.s=[];for(let i=0;i<r.p.length-1;i++){const a=r.p[i],b=r.p[i+1],l=Math.hypot(b[0]-a[0],b[1]-a[1]);r.s.push({a,b,l,L0:L});L+=l}
- const xs=r.p.map(q=>q[0]),ys=r.p.map(q=>q[1]);r.bb=[Math.min(...xs)-8,Math.max(...xs)+8,Math.min(...ys)-8,Math.max(...ys)+8]});
-/** Rio em (x,y): 0 = nenhum, 1 = vau (raso), 2 = fundo. Largura varia com ruído; a cada 70 tiles há um vau de 6 tiles que atravessa o centro. */
-function riverAt(x,y){for(const r of RV){if(x<r.bb[0]||x>r.bb[1]||y<r.bb[2]||y>r.bb[3])continue;let best=1e9,pos=0;
-  for(const g of r.s){const dx=g.b[0]-g.a[0],dy=g.b[1]-g.a[1];let t=((x-g.a[0])*dx+(y-g.a[1])*dy)/(g.l*g.l);t=t<0?0:t>1?1:t;const d=Math.hypot(x-g.a[0]-dx*t,y-g.a[1]-dy*t);if(d<best){best=d;pos=g.L0+g.l*t}}
-  const hw=2.6+(VN(x/9,y/9,55)-.5)*2.4;
-  if(best<hw)return(best<Math.max(.8,hw*.45)&&pos%70>6)?2:1}
- return 0}
-/** Tipos de casa rural (w = peso do sorteio), células da grade, caches, camponeses neutros (RN) e estado do interior (RM.t = tipo da casa em que o jogador está; -1 = casa de cidade). */
-const RT=[{n:'Fazenda',w:30},{n:'Cabana',w:30},{n:'Taverna',w:12},{n:'Moinho',w:13},{n:'Santuário',w:15}],RCELL=28,rcache=new Map(),rdead=new Map(),RN=[],RM={t:-1};
-/** Posições dos baús dentro da sala (a,b) por tipo de casa; padrão (5,1). */
-const RCH={0:[[5,1]],1:[[1,1]],2:[[5,1]],3:[[5,3]],4:[[3,1]]},RFV=['campones','carpinteiro','taverneiro','campones','sacerdote'],RFN=['Fazendeiro','Lenhador','Taverneiro','Moleiro','Sacerdote'];
-const baseN=(x,y)=>VN(x/16,y/16,1)*.7+VN(x/6,y/6,2)*.3;
-/** Casa rural da célula (i,j) de 28x28 tiles, ou null. Densidade: maior na Campina/Terras Fluviais, menor no Norte e em Dorne. Fica longe de cidades, estradas, rios e água; perto de rio vira Moinho. */
-function ruralCell(i,j){const key=i*100003+j;if(rcache.has(key))return rcache.get(key);let r=null;
- const cx0=i*RCELL+5+Math.floor(H(i,j,102)*(RCELL-10)),cy0=j*RCELL+5+Math.floor(H(i,j,103)*(RCELL-10));
- const dens=cy0<-62?.12:cy0>1400?.10:(cy0>100&&cy0<1400)?.34:.24;
- if(cy0>-640&&Math.abs(cy0+60)>6&&cx0<19000&&H(i,j,101)<dens&&!inTown(cx0,cy0,10)){let ok=true;
-  for(const[a,b]of[[-1,-1],[1,-1],[-1,1],[1,1],[0,0]]){const n=baseN(cx0+a,cy0+b);if(n<.37||n>.68)ok=false}
-  for(let a=-2;ok&&a<=2;a++)for(let b=-2;b<=3;b++)if(road(cx0+a,cy0+b)||riverAt(cx0+a,cy0+b)){ok=false;break}
-  if(ok){let ty=0,R=H(i,j,104)*100,acc=0;for(let k=0;k<RT.length;k++){acc+=RT[k].w;if(R<acc){ty=k;break}}
-   if(H(i,j,105)<.7&&[[7,0],[-7,0],[0,7],[0,-7]].some(([a,b])=>riverAt(cx0+a,cy0+b)))ty=3;
-   r={x:cx0,y:cy0,t:ty,i,j}}}
- if(rcache.size>5000)rcache.clear();rcache.set(key,r);return r}
-/** Casa rural cuja célula contém (x,y). */
-const ruralAt=(x,y)=>ruralCell(Math.floor(x/RCELL),Math.floor(y/RCELL));
-/** Tile de casa rural em (x,y): 9 (parede/telhado), 17 (porta, embaixo no centro) ou 0. */
-function ruralTile(x,y){if(x>=19000)return 0;const r=ruralAt(x,y);if(!r)return 0;const dx=x-r.x,dy=y-r.y;return(Math.abs(dx)<=1&&Math.abs(dy)<=1)?((dx==0&&dy==1)?17:9):0}
-/** Gerador do mundo: devolve o id do tile em (x,y). Ordem: interior > cidade/layout > Muralha > estrada (ponte se cruzar rio) > rio > casa rural > ruído (água/areia/grama/floresta/neve/montanha/minério). */
-function gen(x,y){if(x>=19990)return room(x,y);const t=inTown(x,y);if(t){const dx=x-t.x,dy=y-t.y;if(t.k)return lay(t.k,dx,dy);return HSE(dx,dy,[[-5,-4],[5,-4],[-5,4],[5,4]])||8}
- const w7=TW[7];if(Math.abs(y-(w7.y-6.5))<=.5&&Math.abs(x-w7.x)<=240)return Math.abs(x-w7.x)<=1?15:18;
- const n=VN(x/16,y/16,1)*.7+VN(x/6,y/6,2)*.3,rv=n>=.3?riverAt(x,y):0;if(road(x,y))return rv?16:6;if(y==-60||y==-61)return 7;if(rv)return rv==2?21:20;const rh=ruralTile(x,y);if(rh)return rh;if(n<.3)return 0;if(n<.34)return 1;if(n>.74)return H(x,y,12)>.93?11:5;
- if(y<-61)return H(x,y,9)>.86?10:4;
- if(VN(x/4,y/4,3)>.64&&H(x,y,4)>.35)return y<-15?10:3;return 2}
-/** Chave numérica de (x,y) para cache e conjunto de cortes. */
-const kk=(x,y)=>(x+5e4)*1e5+y+5e4,tc=new Map(),cut=new Set(),treeProgress=new Map(),treeHitFx=new Map(),treeFallFx=new Map(),SOL=new Set([0,5,7,9,11,12,13,18,19,21]),TREE_GROUND=new Set([1,2,3,4,10]);
-function rawTile(x,y){const k=kk(x,y);let v=tc.get(k);if(v===undefined){v=gen(x,y);tc.set(k,v);if(tc.size>9e4)tc.clear()}return v}
-function treeCell(x,y){const t=rawTile(x,y);if(t==10)return{kind:'pinheiro',size:3};if(t==3)return{kind:y>1400?'palmeira':'carvalho',size:3};if(t==1&&y>1400&&H(x,y,33)>.94)return{kind:'cacto',size:3};return null}
-function treeAtAnchor(x,y,size){if(((x%size)+size)%size||((y%size)+size)%size)return null;const rootX=x+1,rootY=y+size-1,found=treeCell(rootX,rootY);if(!found||found.size!=size)return null;
- for(let dy=0;dy<size;dy++)for(let dx=0;dx<size;dx++){const px=x+dx,py=y+dy;if(!TREE_GROUND.has(rawTile(px,py))||cut.has(kk(px,py)))return null}
- const density=H(x,y,34);for(const town of TW){const dx=Math.abs(rootX-town.x),dy=Math.abs(rootY-town.y);if(dx>town.rx+42||dy>town.ry+42)continue;const distance=Math.max(0,dx-town.rx,dy-town.ry);if(distance<=10){if(density>.1)return null}else if(distance<=28){if(density>.45)return null}else if(distance<=42&&density>.7)return null}
- return{...found,x,y}}
-function treeAtPosition(x,y){const size=3;return treeAtAnchor(Math.floor(x/size)*size,Math.floor(y/size)*size,size)}
-function treeSolid(x,y){return!!treeAtAnchor(x-1,y-2,3)}
-function treesInView(x0,y0,x1,y1){const trees=[],size=3;for(let y=Math.floor((y0-size+1)/size)*size;y<=y1;y+=size)for(let x=Math.floor((x0-size+1)/size)*size;x<=x1;x+=size){const t=treeAtAnchor(x,y,size);if(t)trees.push(t)}return trees}
-function interactionTarget(x,y){const candidates=[];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const tx=x+dx,ty=y+dy,tree=treeAtPosition(tx,ty),t=tile(tx,ty);if((tree&&!treeFallFx.has(kk(tree.x,tree.y)))||t==11||t==0||t==7||t==20||t==21||t==19)candidates.push({x:tx,y:ty,score:Math.max(Math.abs(dx),Math.abs(dy))-(dx==P.f[0]&&dy==P.f[1]?0.75:0)-(tree?0.25:0)})}return candidates.sort((a,b)=>a.score-b.score)[0]}
-/** Tiles de árvore viram terreno sob o sprite; apenas os pontos de contato da árvore têm colisão. */
-function tile(x,y){const v=rawTile(x,y);if(cut.has(kk(x,y))&&v==11)return 5;if(v==3)return y>1400?1:2;if(v==10)return 4;return v}
-/** NPCs fixos: ferreiro, mercador e estalajadeiro de cada cidade; Castle Black tem irmãos juramentados e guardião do portão. */
-const NP=[];TW.forEach(t=>{
- if(t.i==7){NP.push({n:'Ferreiro Donal Noye',k:'f',ti:7,x:t.x-2,y:t.y},{n:'Intendente da Patrulha',k:'m',ti:7,x:t.x+2,y:t.y},{n:'Meistre Aemon',k:'e',ti:7,x:t.x,y:t.y-2})}
- else{NP.push({n:'Ferreiro de '+t.n,k:'f',ti:t.i,x:t.x-2,y:t.y},{n:'Mercador de '+t.n,k:'m',ti:t.i,x:t.x+2,y:t.y},{n:'Estalajadeiro de '+t.n,k:'e',ti:t.i,x:t.x,y:t.y-2})}
-});
-NP.push({n:'Patrulheiro do Portão',k:'gate',ti:7,x:0,y:-655,dx:0,dy:-655,g:'m'});
-NP.forEach(n=>{n.dx=n.x;n.dy=n.y});
+/* ===== mapa ===== */
+// O mapa, cidades, rios, estradas, casas rurais, árvores e o minimapa/mundo de Westeros
+// ficam em js/mapa.js para facilitar edição sem alterar a gameplay.
 /* ===== dados ===== */
 /** Armas (n nome, a ataque, c custo, t tipo/proficiência, q proficiência mínima, m durabilidade). */
 const W=[{n:'Punhos',a:0,t:'unarmed',q:0,m:100},{n:'Adaga',a:2,c:60,t:'sword',q:0,m:80},{n:'Espada Longa',a:5,c:180,t:'sword',q:10,m:100},{n:'Espada de Aço',a:9,c:500,t:'sword',q:30,m:120},{n:'Aço Valiriano',a:16,c:2500,t:'sword',q:50,m:200}];
@@ -220,7 +90,7 @@ async function auth(reg){const u=$('u').value.trim().toLowerCase(),pw=$('pw').va
   if(!a[u]||a[u].h!=h){e.textContent='Usuário ou senha incorretos.';return}}
  start(u,a[u].s);if(auth.rep){auth.rep=0;msg('Conta antiga reparada: esta senha agora é a da sua conta.','#e2b04a')}}
 /** Inicia a sessão: preenche padrões faltantes do save (migração), zera monstros/cidadãos e mostra o jogo. */
-function start(u,s){user=u;P={...s,inv:{...s.inv}};P.ow=[...new Set([0,P.w,...(Array.isArray(P.ow)?P.ow:[])].filter(i=>Number.isInteger(i)&&i>=0&&i<W.length))];P.wd={...(P.wd||{})};if(P.wd[P.w]===undefined)P.wd[P.w]=P.du&&P.du.w!==undefined?P.du.w:100;P.name=P.name||u;SL.forEach(k=>P[k]|=0);P.du={...Object.fromEntries(SL.map(k=>[k,100])),...P.du};P.du.w=P.wd[P.w];P.pf={sword:0,axe:0,bow:0,unarmed:20,woodcut:10,fish:0,cook:0,repair:0,mining:0,...P.pf};P.rp={...P.rp};P.mw=P.mw||100;const HOME={S:3,L:11,T:1,B:21},SP={S:[TW[3].x,TW[3].y+2],L:[TW[11].x,TW[11].y+2],T:[TW[1].x,TW[1].y+2],B:[TW[21].x,TW[21].y+2]};const legacyCastle=Math.abs(P.x)<=3&&P.y>=-55&&P.y<=-49;if(!P.v&&legacyCastle&&HOME[P.h]!==undefined){P.home=HOME[P.h];P.x=SP[P.h][0];P.y=SP[P.h][1];P.dx=P.x;P.dy=P.y}if(u==='sudo'){P.gold=999999999;P.w=W.length-1;P.ow=[...new Set([...P.ow,P.w])];P.wd[P.w]=100;P.du.w=100;P.a=A.length-1;P.lvl=30;P.xp=0;P.hp=mh();P.horse=true;P.mounted=true;P.inv={pot:99,'Vidro de Dragão':99,'Escama de Dragão':99,'Pele de Lobo':99,'Madeira':99};}for(const[k,def]of Object.entries(TOOLS)){P[def.slot]=Math.max(0,Math.min(3,Math.floor(P[def.slot])));if(P.inv[k])P[def.slot]=Math.max(1,P[def.slot]);if(P[def.slot])P.inv[k]=Math.max(1,P.inv[k]||0)}cut.clear();(s.cut||[]).forEach(k=>cut.add(k));tc.clear();Object.assign(P,{dx:P.x,dy:P.y,mv:0,cd:0,f:[0,1],tw:-1,horse:!!P.horse,mounted:!!P.mounted,toolAction:null});mons.length=0;CZ.length=0;G.al=0;S=null;$('md').style.display='none';$('inventory-panel').style.display='flex';setInventoryOpen(true);$('hud').style.display='block';$('top-actions').style.display='flex';$('lgn').style.display='none';$('err').textContent='';logs.length=0;msg('Bem-vindo. Mova-se com <span class=k>WASD</span>, ataque com <span class=k>Espaço</span>, fale com NPCs e corte árvores com <span class=k>E</span>, cure-se com <span class=k>Q</span>, inventário em <span class=k>I</span>.','#8fd0f0');msg('Cidades são seguras. Cuidado com saqueadores nas estradas.')}
+function start(u,s){user=u;P={...s,inv:{...s.inv}};if(typeof isLand==='function'&&!isLand(P.x,P.y)){const home=Number.isInteger(P.home)?TW[P.home]:null;if(home){P.x=home.x;P.y=home.y+2;}}P.ow=[...new Set([0,P.w,...(Array.isArray(P.ow)?P.ow:[])].filter(i=>Number.isInteger(i)&&i>=0&&i<W.length))];P.wd={...(P.wd||{})};if(P.wd[P.w]===undefined)P.wd[P.w]=P.du&&P.du.w!==undefined?P.du.w:100;P.name=P.name||u;SL.forEach(k=>P[k]|=0);P.du={...Object.fromEntries(SL.map(k=>[k,100])),...P.du};P.du.w=P.wd[P.w];P.pf={sword:0,axe:0,bow:0,unarmed:20,woodcut:10,fish:0,cook:0,repair:0,mining:0,...P.pf};P.rp={...P.rp};P.mw=P.mw||100;const HOME={S:3,L:11,T:1,B:21},SP={S:[TW[3].x,TW[3].y+2],L:[TW[11].x,TW[11].y+2],T:[TW[1].x,TW[1].y+2],B:[TW[21].x,TW[21].y+2]};const legacyCastle=Math.abs(P.x)<=3&&P.y>=-55&&P.y<=-49;if(!P.v&&legacyCastle&&HOME[P.h]!==undefined){P.home=HOME[P.h];P.x=SP[P.h][0];P.y=SP[P.h][1];P.dx=P.x;P.dy=P.y}if(u==='sudo'){P.gold=999999999;P.w=W.length-1;P.ow=[...new Set([...P.ow,P.w])];P.wd[P.w]=100;P.du.w=100;P.a=A.length-1;P.lvl=30;P.xp=0;P.hp=mh();P.horse=true;P.mounted=true;P.inv={pot:99,'Vidro de Dragão':99,'Escama de Dragão':99,'Pele de Lobo':99,'Madeira':99};}for(const[k,def]of Object.entries(TOOLS)){P[def.slot]=Math.max(0,Math.min(3,Math.floor(P[def.slot])));if(P.inv[k])P[def.slot]=Math.max(1,P[def.slot]);if(P[def.slot])P.inv[k]=Math.max(1,P.inv[k]||0)}cut.clear();(s.cut||[]).forEach(k=>cut.add(k));tc.clear();Object.assign(P,{dx:P.x,dy:P.y,mv:0,cd:0,f:[0,1],tw:-1,horse:!!P.horse,mounted:!!P.mounted,toolAction:null});mons.length=0;CZ.length=0;G.al=0;S=null;$('md').style.display='none';$('inventory-panel').style.display='flex';setInventoryOpen(true);$('hud').style.display='block';$('top-actions').style.display='flex';$('lgn').style.display='none';$('err').textContent='';logs.length=0;msg('Bem-vindo. Mova-se com <span class=k>WASD</span>, ataque com <span class=k>Espaço</span>, fale com NPCs e corte árvores com <span class=k>E</span>, cure-se com <span class=k>Q</span>, inventário em <span class=k>I</span>.','#8fd0f0');msg('Cidades são seguras. Cuidado com saqueadores nas estradas.')}
 $('bi').onclick=()=>auth(0);$('br').onclick=()=>auth(1);
 $('lgn').addEventListener('keydown',e=>{if(e.key!='Enter'||e.target.tagName!='INPUT')return;const fields=[...$('lgn').querySelectorAll('input,select')],next=fields.indexOf(e.target)+1;if(next<fields.length){e.preventDefault();fields[next].focus()}});
 $('out').onclick=()=>{save();P=null;user=null;$('lgn').style.display='flex';$('inventory-panel').style.display='none';$('hud').style.display='none';$('top-actions').style.display='none'};
@@ -265,6 +135,7 @@ function eq(t,i){const it=IT[t][i],owned=t=='w'?P.ow.includes(i):ownedGear(t).in
 function fix(t){const c=pc(Math.ceil(IT[t][P[t]].c*.2));if(P.gold<c)return msg('Ouro insuficiente.','#ff8a80');P.gold-=c;P.du[t]=100;if(t=='w')P.wd[P.w]=100;P.pf.repair=Math.min(100,P.pf.repair+.5);msg('Equipamento reparado.','#e2b04a');shop();save()}
 /** Buffer do código secreto. */
 const CHT=[];
+const SUDO_WORD='sudo';let sudoBuffer='',sudoBufferAt=0;
 /** Código secreto 676767 (em 2,5 s): melhores itens, ferramentas e cavalo. */
 function cheat(k){const n=performance.now();CHT.push([k,n]);while(CHT.length&&(n-CHT[0][1]>2500||CHT.length>6))CHT.shift();if(CHT.map(c=>c[0]).join('')=='676767'){CHT.length=0;P.w=4;P.a=4;P.s=2;P.hd=2;SL.forEach(t=>P.du[t]=100);P.horse=true;P.mounted=true;for(const t of['Machado de Corte','Picareta','Vara de Pescar'])P.inv[t]=1;P.inv.pot=(P.inv.pot||0)+10;msg('Código secreto: melhores itens e um cavalo!','#ffd24a');fx(P.x,P.y,'★','#ffd24a');save()}}
 /** Estalajadeiro: recupera toda a vida. */
@@ -313,7 +184,7 @@ function die(){
 const CC=['#6a8a5a','#8a6a4a','#5a6e9a','#9a5a5a','#7a6a8a'];
 /** Mantém cidadãos e guardas de uma cidade; em Castle Black todos são irmãos juramentados da Patrulha da Noite. */
 function popT(t){if(!t.dr){t.dr=[];for(let y=t.y-t.ry;y<=t.y+t.ry;y++)for(let x=t.x-t.rx;x<=t.x+t.rx;x++)if(tile(x,y)==17)t.dr.push([x,y])}
- const isCB=t.i==7,want={cit:isCB?0:(t.t=='ruin'?2:t.t=='city'?8:5),sd:isCB?8:(t.t=='wall'?6:t.t=='city'?4:t.t=='ruin'?0:3)};
+ const isCB=t.i==7,want={cit:isCB?0:(t.t=='ruin'?3:t.t=='city'?12:8),sd:isCB?8:(t.t=='wall'?6:t.t=='city'?5:t.t=='ruin'?0:4)};
  for(const k in want){let n=CZ.filter(c=>c.ti==t.i&&c.k==k).length;for(let j=0;j<6&&n<want[k];j++){const x=t.x-t.rx+1+(Math.random()*(2*t.rx-1)|0),y=t.y-t.ry+1+(Math.random()*(2*t.ry-1)|0),q=tile(x,y);if(!free(x,y)||q==17||(x==P.x&&y==P.y))continue;CZ.push({k,ti:t.i,x,y,dx:x,dy:y,mv:Math.random(),cd:0,tm:0,st:0,hp:90,g:Math.random()<.5?'f':'m',v:isCB?'soldado':['campones','campones','campones','mendigo','viajante','carpinteiro','sacerdote','maester'][Math.random()*8|0],col:isCB?'#1c1c22':CC[Math.random()*CC.length|0],pn:isCB?'Patrulheiro da Noite':null});n++}}}
 /** Jogador bate em cidadão/guarda: Castle Black é imune a ataques; cidades comuns ativam alerta. */
 function hitC(c){if(P.cd>0)return;if(c.ti==7)return msg('Você não pode desembainhar armas contra irmãos da Patrulha da Noite.','#9aa3b2');
@@ -383,7 +254,19 @@ function rnUpd(dt){if(P.x>=19990)return;G.rp=(G.rp||0)-dt;
   if(c.mv>0)continue;c.mv=c.ang>0?.5:.9+Math.random()*1.2;let a=0,b=0;
   if(c.ang>0){if(Math.abs(ex)>=Math.abs(ey))a=Math.sign(ex);else b=Math.sign(ey)}else if(Math.random()<.5){const q=Math.random()*4|0;a=[1,-1,0,0][q];b=[0,0,1,-1][q]}
   const X=c.x+a,Y=c.y+b;if((a||b)&&free(X,Y)&&!(X==P.x&&Y==P.y)&&tile(X,Y)!=20&&!inTown(X,Y)&&(c.ang>0||Math.hypot(X-c.hx,Y-c.hy)<=6)){c.x=X;c.y=Y}}}
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(e.target.tagName=='INPUT'||e.target.tagName=='SELECT')return;if(!P||wmOpen())return;if(/^\d$/.test(k)&&!e.repeat)cheat(k);
+addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(e.target.tagName=='INPUT'||e.target.tagName=='SELECT')return;if(!P||wmOpen())return;
+ if(!e.repeat&&k.length===1&&/[a-z]/.test(k)){
+  const now=performance.now();
+  if(now-sudoBufferAt>1500)sudoBuffer='';
+  const next=sudoBuffer+k;
+  if(SUDO_WORD.startsWith(next)){
+   sudoBuffer=next;sudoBufferAt=now;e.preventDefault();
+   if(sudoBuffer===SUDO_WORD){sudoBuffer='';P.sudoSpeed=!P.sudoSpeed;P.mv=0;msg(P.sudoSpeed?'Modo SUDO ativado: velocidade 20×, sem colisões.':'Modo SUDO desativado.','#ffd24a');fx(P.x,P.y,P.sudoSpeed?'⚡':'✓','#ffd24a')}
+   return;
+  }
+  sudoBuffer='';
+ }
+ if(/^\d$/.test(k)&&!e.repeat)cheat(k);
  if(['arrowup','arrowdown','arrowleft','arrowright',' ','w','a','s','d','e','q','c'].includes(k))e.preventDefault();
  if(k=='escape'&&S)return closeShop();if(S)return;if(k=='i'&&!e.repeat){toggleInventory();return}if(k=='c'&&!e.repeat){if(!P.horse)return msg('Você não possui um cavalo.','#9aa3b2');P.mounted=!P.mounted;msg(P.mounted?'Você montou a cavalo.':'Você desmontou.','#e2b04a');save();return;}K.add(k);
  if(k=='e'&&!e.repeat&&!talk())chop();
@@ -407,7 +290,10 @@ function zoomBy(f){if(!P||P.x>=19990)return;zoomTiles=Math.max(5,Math.min(30,zoo
 /** Atualização por quadro: entrada, movimento, portas, monstros, regeneração, alerta e autosave. */
 function upd(dt){G.t+=dt;P.playTime=(P.playTime||0)+dt;P.mv-=dt;P.cd-=dt;const sf=inTown(P.x,P.y);
  P.dx+=(P.x-P.dx)*Math.min(1,dt*16);P.dy+=(P.y-P.dy)*Math.min(1,dt*16);
- if(P.mv<=0){let a=(K.has('d')||K.has('arrowright'))-(K.has('a')||K.has('arrowleft')),b=(K.has('s')||K.has('arrowdown'))-(K.has('w')||K.has('arrowup'));if(a)b=0;
+ if(P.sudoSpeed){
+  let a=(K.has('d')||K.has('arrowright'))-(K.has('a')||K.has('arrowleft')),b=(K.has('s')||K.has('arrowdown'))-(K.has('w')||K.has('arrowup'));if(a)b=0;
+  if(a||b){P.f=[a,b];let steps=0;while(P.mv<=0&&steps<64){P.x+=a;P.y+=b;P.mv+=.12/20;steps++}P.dx=P.x;P.dy=P.y}else P.mv=0;
+ }else if(P.mv<=0){let a=(K.has('d')||K.has('arrowright'))-(K.has('a')||K.has('arrowleft')),b=(K.has('s')||K.has('arrowdown'))-(K.has('w')||K.has('arrowup'));if(a)b=0;
   if(a||b){P.f=[a,b];const x=P.x+a,y=P.y+b;
    if(P.lvl<20&&b<0&&y<=-656&&P.y>=-656&&Math.abs(x-TW[7].x)<=2){
     msg('Patrulheiro do Portão: "Só pode passar quando for mais forte." (Requer Nível 20)','#ff8a80');
@@ -524,9 +410,6 @@ function draw(dt){const w=cv.width,h=cv.height,interior=P.x>=19990,s=interior?Ma
  if(P.dy<-58){cx.fillStyle='#fffc';for(let i=0;i<70;i++){const x=((H(i,1)*w+G.t*14*((i%3)-1))%w+w)%w,y=((H(i,2)*h+G.t*(40+H(i,3)*40))%h+h)%h;cx.fillRect(x,y,2,2)}}
  if(G.bn>0){cx.globalAlpha=Math.min(1,G.bn);cx.font='800 30px Cinzel,Georgia,serif';cx.fillStyle='#000a';cx.fillText(G.bt,w/2+2,102);cx.fillStyle='#e2b04a';cx.fillText(G.bt,w/2,100);cx.globalAlpha=1}}
 /** Contexto do minimapa e cores MMC por id de tile. */
-const mmc=$('mmc').getContext('2d'),MMC=['#2a5f8f','#d9c78a','#5f9146','#3f7a36','#e8eef2','#7b7f86','#a48a5e','#c9d6e3','#b9b3a4','#8a5a3c','#2e5a3a','#e2b04a','#8b8f98','#5d6068','#a39e92','#7a5a36','#8a6a3c','#6a4a32','#cfe6f2','#8a6a3c'];
-MMC[20]='#6fb7c9';MMC[21]='#2f7fb0';
-/** Atualiza painel do personagem, barras e o minimapa. */
 let inventorySignature='';
 const INVENTORY_ICONS={pot:'item_potion','Poção de Cura':'item_potion','Poção de cura':'item_potion',Madeira:'item_wood','Minério de Ferro':'item_iron','Minério de Cobre':'item_copper','Minério de Prata':'item_silver',Peixe:'item_fish',Carne:'item_meat',Trigo:'item_wheat','Pele de Lobo':'item_wolf_pelt','Pele de Urso':'item_bear_pelt','Presa de Mamute':'item_mammoth_tusk','Osso de Gigante':'item_giant_bone','Osso Amaldiçoado':'item_cursed_bone','Adaga Enferrujada':'item_dagger','Coração Gelado':'item_ice','Vidro de Dragão':'item_dragonglass','Escama de Dragão':'item_dragon_scale','Relíquia Antiga':'item_antique_relic','Machado de Corte':'item_axe',Picareta:'item_pickaxe','Vara de Pescar':'item_fishing_rod','Flor Azul':'item_blue_flower',Flecha:'item_arrow','Moeda de Ouro':'item_gold_coin',Punhos:'item_fists',Adaga:'item_dagger','Espada Longa':'item_long_sword','Espada de Aço':'item_steel_sword','Aço Valiriano':'item_valyrian_steel',Roupas:'item_clothes','Gibão de Couro':'item_leather_armor','Cota de Malha':'item_chainmail','Armadura de Placas':'item_plate_armor','Armadura Valiriana':'item_valyrian_armor','Capuz de Couro':'item_leather_hood','Elmo de Ferro':'item_iron_helmet','Escudo de Madeira':'item_wooden_shield','Escudo de Ferro':'item_iron_shield'};
 const ownedGear=t=>{const key=EQUIP_OWNERS[t];if(!key)return P.ow;P[key]=[...new Set([0,P[t],...(Array.isArray(P[key])?P[key]:[])].filter(i=>Number.isInteger(i)&&i>=0&&i<IT[t].length))];return P[key]};
@@ -572,106 +455,38 @@ document.addEventListener('touchstart',event=>{const source=event.target.closest
 document.addEventListener('touchmove',event=>{if(!touchInventoryDrag)return;const touch=event.changedTouches[0];if(!touchInventoryDrag.active&&Math.hypot(touch.clientX-touchInventoryDrag.x,touch.clientY-touchInventoryDrag.y)>10){clearTimeout(touchInventoryDrag.timer);touchInventoryDrag=null;return}if(touchInventoryDrag.active)event.preventDefault()},{passive:false});
 document.addEventListener('touchend',event=>{if(!touchInventoryDrag)return;const drag=touchInventoryDrag;clearTimeout(drag.timer);touchInventoryDrag=null;drag.source.classList.remove('drag-source');if(!drag.active)return;const touch=event.changedTouches[0],target=document.elementFromPoint(touch.clientX,touch.clientY)?.closest('.equipment-slot,.inventory-trash');if(!target)return;const success=target.matches('[data-trash]')?discardInventoryItem(drag.id):equipInventoryItem(drag.id,target.dataset.equip);if(!success){msg(target.matches('[data-trash]')?'Não foi possível descartar esse item.':'Esse item não pode ser equipado nesse espaço.','#ff8a80');return}inventorySignature='';renderInventory();hud();save();msg(target.matches('[data-trash]')?'Item descartado.':'Equipamento atualizado.','#e2b04a')},{passive:true});
 function updateGameClock(){const totalMinutes=480+Math.floor((P.playTime||0)*9.6),dayIndex=Math.floor(totalMinutes/1440),minuteOfDay=totalMinutes%1440,hour=String(Math.floor(minuteOfDay/60)).padStart(2,'0'),minute=String(minuteOfDay%60).padStart(2,'0'),day=String(dayIndex%365+1).padStart(3,'0'),year=String(Math.floor(dayIndex/365)+1).padStart(2,'0');$('game-time').textContent=`${hour}:${minute}`;$('game-date').textContent=`DIA ${day} · ANO ${year}`}
-function hud(){updateGameClock();$('nm').textContent=P.name;$('def').textContent=defV();$('atk').textContent=Math.round(atkV());$('weapon').textContent=W[P.w].n;$('outfit').textContent=[A[P.a].n,P.s?SH[P.s].n:null,P.hd?HE[P.hd].n:null].filter(Boolean).join(' · ');$('potions').textContent=P.inv.pot||0;$('level').textContent=`NÍVEL ${P.lvl}`;$('coins').innerHTML=`<img src="${ASSET_MANIFEST.item_gold_coin}" alt="Ouro"><span>${P.gold}</span>`;$('hp-label').textContent='HP';$('hp-label').title=`${Math.ceil(P.hp)} / ${mh()}`;$('xp-label').textContent='XP';$('xp-label').title=`${P.xp} / ${nx()}`;$('hp-value').textContent=`${Math.ceil(P.hp)}/${mh()}`;$('xp-value').textContent=`${P.xp}/${nx()}`;$('hb').style.width=100*P.hp/mh()+'%';$('xb').style.width=100*P.xp/nx()+'%';renderInventory();
- for(let j=0;j<61;j++)for(let i=0;i<61;i++){mmc.fillStyle=MMC[tile(P.x-30+i,P.y-30+j)];mmc.fillRect(i,j,1,1)}
- mmc.fillStyle='#ffd24a';for(const t of TW){const i=t.x-P.x+30,j=t.y-P.y+30;if(i>=0&&i<61&&j>=0&&j<61)mmc.fillRect(i-1,j-1,3,3)}
- mmc.fillStyle='#f55';for(const m of mons){const i=m.x-P.x+30,j=m.y-P.y+30;if(i>=0&&i<61&&j>=0&&j<61)mmc.fillRect(i,j,1,1)}mmc.fillStyle='#fff';mmc.fillRect(29,29,3,3)}
-/* mapa mundi */
-/* O mapa usa a MESMA escala lógica das posições do mundo jogável.
-   Assim, cidades, rios, estradas e o marcador do jogador nunca ficam desalinhados. */
-/** Parâmetros do mapa-múndi (limites e escala). */
-const WM_SCALE=10;const WX0=-125,WX1=115,WY0=-120,WY1=200,wmc=$('wmc');
-/** Tamanho lógico do mapa-múndi e funções wx/wy de conversão. */
-const WMW=700,WMH=900;wmc.width=WMW*2;wmc.height=WMH*2;const wmctx=wmc.getContext('2d');
-const wx=x=>(x-WX0)/(WX1-WX0)*(WMW-1),wy=y=>(y-WY0)/(WY1-WY0)*(WMH-1),wmX=x=>x/WM_SCALE,wmY=y=>y/WM_SCALE;
-const lerp=(a,b,t)=>a+(b-a)*t;
-const WMP=[[-120,2,12],[-65,0,45],[-35,2,58],[0,5,62],[50,4,112],[90,2,100],[120,3,82],[150,10,68],[175,25,64],[195,40,58]];
-/** Contorno de Westeros no mapa-múndi (largura/centro por latitude). */
-function wmProfile(y){for(let i=0;i<WMP.length-1;i++){const a=WMP[i],b=WMP[i+1];if(y>=a[0]&&y<=b[0]){const t=(y-a[0])/(b[0]-a[0]);return[lerp(a[1],b[1],t),lerp(a[2],b[2],t)]}}return y<WMP[0][0]?[WMP[0][1],WMP[0][2]]:[WMP.at(-1)[1],WMP.at(-1)[2]]}
-/** Diz se um ponto do mapa-múndi é terra. */
-function wmLand(x,y){const[c,w]=wmProfile(y),n=VN(x/7,y/11,71),q=(x-c)/(w*(.96+n*.08));let land=q*q<1;const islands=[[70,65,9,8],[-120,60,9,7],[38,70,7,10],[16,105,7,8],[48,42,5,6],[-25,90,6,5],[41,112,7,6],[35,-110,8,6]];for(const[ix,iy,rx,ry]of islands)if(((x-ix)/rx)**2+((y-iy)/ry)**2<1)land=true;return land}
-/** Cor do bioma de um ponto do mapa-múndi. */
-function wmBiome(x,y){
- if(!wmLand(x,y))return '#17364e';
- const n=VN(x/4,y/6,31),n2=VN(x/2.4,y/3.2,32);
- if(y<-60)return n>.46?'#e8f0f2':'#c9dce2';
- if(y>92)return n>.62?'#d7b06b':'#c39459';
- if(y>58)return n2>.57?'#72964e':'#638749';
- if(y>-2&&y<28)return n2>.56?'#5b7e4c':'#6f8d55';
- return n2>.59?'#4b7449':'#628652';
+function hud(){updateGameClock();$('nm').textContent=P.name;$('def').textContent=defV();$('atk').textContent=Math.round(atkV());$('weapon').textContent=W[P.w].n;$('outfit').textContent=[A[P.a].n,P.s?SH[P.s].n:null,P.hd?HE[P.hd].n:null].filter(Boolean).join(' · ');$('potions').textContent=P.inv.pot||0;$('level').textContent=`NÍVEL ${P.lvl}`;$('coins').innerHTML=`<img src="${ASSET_MANIFEST.item_gold_coin}" alt="Ouro"><span>${P.gold}</span>`;$('hp-label').textContent='HP';$('hp-label').title=`${Math.ceil(P.hp)} / ${mh()}`;$('xp-label').textContent='XP';$('xp-label').title=`${P.xp} / ${nx()}`;$('hp-value').textContent=`${Math.ceil(P.hp)}/${mh()}`;$('xp-value').textContent=`${P.xp}/${nx()}`;$('hb').style.width=100*P.hp/mh()+'%';$('xb').style.width=100*P.xp/nx()+'%';renderInventory();renderMinimap();
 }
-/** Desenha uma linha de pontos (rios, muralha). */
-function wmPath(points,dash=false){wmctx.beginPath();points.forEach((p,i)=>i?wmctx.lineTo(wx(p[0]),wy(p[1])):wmctx.moveTo(wx(p[0]),wy(p[1])));wmctx.stroke();wmctx.setLineDash(dash?[5,4]:[])}
-/** Desenha uma curva de estrada no mapa-múndi. */
-function wmRoad(a,b,c){wmctx.beginPath();wmctx.moveTo(wx(wmX(a[0])),wy(wmY(a[1])));wmctx.quadraticCurveTo(wx(wmX(c[0])),wy(wmY(c[1])));wmctx.lineTo(wx(wmX(b[0])),wy(wmY(b[1])));wmctx.stroke()}
-/** Escreve um rótulo (região/cidade) no mapa-múndi. */
-function wmLabel(t,x,y,size=10){wmctx.font=`700 ${size}px Georgia,serif`;wmctx.textAlign='center';wmctx.fillStyle='#241d16';wmctx.fillText(t,wx(x)+1,wy(y)+1);wmctx.fillStyle='#f5ead2';wmctx.fillText(t,wx(x),wy(y));wmctx.textAlign='left'}
-/** Desenha um símbolo de montanha no mapa-múndi. */
-function wmMountain(x,y,s=2.2){const X=wx(x),Y=wy(y),S=s*WMW/(WX1-WX0);wmctx.fillStyle='#655f59';wmctx.beginPath();wmctx.moveTo(X-S,Y+S);wmctx.lineTo(X,Y-S);wmctx.lineTo(X+S,Y+S);wmctx.closePath();wmctx.fill();wmctx.fillStyle='#ddd8d0';wmctx.beginPath();wmctx.moveTo(X,Y-S);wmctx.lineTo(X-S*.32,Y-.1*S);wmctx.lineTo(X+.3*S,Y-.1*S);wmctx.closePath();wmctx.fill()}
-/** Desenha um símbolo de floresta no mapa-múndi. */
-function wmTree(x,y,s=.7){const X=wx(x),Y=wy(y),S=s*WMW/(WX1-WX0);wmctx.fillStyle='#315a3d';wmctx.beginPath();wmctx.moveTo(X,Y-S*2);wmctx.lineTo(X-S,Y+S);wmctx.lineTo(X+S,Y+S);wmctx.closePath();wmctx.fill()}
-/** Redesenha o mapa-múndi inteiro (terra, estradas, nomes, cidades, marcador VOCÊ). */
-function worldmap(){
- wmctx.setTransform(2,0,0,2,0,0);wmctx.clearRect(0,0,WMW,WMH);wmctx.fillStyle='#142b40';wmctx.fillRect(0,0,WMW,WMH);
- /* grandes manchas de terreno — sem ruído de tile */
- for(let y=WY0;y<=WY1;y+=1)for(let x=WX0;x<=WX1;x+=1){if(!wmLand(x+.5,y+.5))continue;wmctx.fillStyle=wmBiome(x+.5,y+.5);wmctx.fillRect(wx(x),wy(y),Math.ceil(WMW/(WX1-WX0))+1,Math.ceil(WMH/(WY1-WY0))+1)}
- /* baías principais */
- wmctx.globalAlpha=.55;wmctx.fillStyle='#234b66';
- for(const b of [[28,45,10,14],[38,80,8,15],[-29,45,8,11],[-40,10,9,12]]){wmctx.beginPath();wmctx.ellipse(wx(b[0]),wy(b[1]),b[2]*WMW/(WX1-WX0),b[3]*WMH/(WY1-WY0),0,0,7);wmctx.fill()}
- wmctx.globalAlpha=1;
- /* rios principais, desenhados na mesma escala das cidades */
- wmctx.strokeStyle='#83c4d2';wmctx.lineWidth=2.5;
- RV.forEach(r=>wmPath(r.p.map(q=>[q[0]/10,q[1]/10])));
- /* estradas principais entre as localidades */
- wmctx.strokeStyle='#c9a15f';wmctx.lineWidth=1.7;
- const roads=[
-  [[1,-24],[1,12],[0,27]],
-  [[0,27],[20,42],[31,76]],
-  [[0,27],[27,29],[43,24]],
-  [[1,12],[-3,17],[2,27]],
-  [[2,-24],[24,-3],[28,-25]],
-  [[-3,17],[-32,55],[-44,43]],
-  [[-32,55],[-29,61],[-25,83],[-5,64]],
-  [[-5,64],[-20,72],[16,105]],
-  [[31,76],[38,69],[41,112]],
-  [[41,112],[38,105],[16,105]],
-  [[36,38],[20,42],[31,30]],
-  [[-47,37],[-32,55]],
-  [[18,-82],[1,-53],[2,-24]]
- ];
- for(const[p,q]of RL){const a=TW[p],b=TW[q];wmctx.beginPath();wmctx.moveTo(wx(a.x/10),wy(a.y/10));wmctx.lineTo(wx(b.x/10),wy(a.y/10));wmctx.lineTo(wx(b.x/10),wy(b.y/10));wmctx.stroke()}
- /* cadeias de montanhas */
- for(let i=0;i<8;i++)wmMountain(33+i*1.6,20+i*4.2,2.2);
- for(let i=0;i<8;i++)wmMountain(-46+i*2.1,45+i*2.2,2.1);
- for(let i=0;i<9;i++)wmMountain(20+i*2.2,72+i*2.7,2.1);
- for(let i=0;i<9;i++)wmMountain(-1+i*2.0,87+i*2.1,2.0);
- /* florestas e vegetação decorativa */
- for(let i=0;i<75;i++){const y=-50+H(i,2,77)*150,x=-45+H(i,5,78)*85;if(wmLand(x,y)&&y<92&&y>-5)wmTree(x,y,.65+H(i,9,79)*.45)}
- /* Muralha */
- wmctx.strokeStyle='#e0e4e5';wmctx.lineWidth=4;wmPath([[-47,-53],[48,-53]]);
- RV.forEach(r=>{const m=r.p[r.p.length>>1];wmLabel(r.n,m[0]/10+4,m[1]/10-2,7)});wmLabel('A MURALHA',0,-68,10);const rg={};TW.forEach(t=>(rg[t.r]=rg[t.r]||[]).push(t));for(const k in rg){const l=rg[k];wmLabel(k.toUpperCase(),l.reduce((a,t)=>a+t.x,0)/l.length/10,l.reduce((a,t)=>a+t.y,0)/l.length/10-4,9)}
- /* localidades */
- wmctx.textBaseline='middle';for(const t of TW){const x=wx(wmX(t.x)),y=wy(wmY(t.y)),city=t.t==='city';wmctx.fillStyle=city?'#ffd24a':'#f0c36a';wmctx.strokeStyle='#21180d';wmctx.lineWidth=1.5;wmctx.beginPath();wmctx.arc(x,y,city?4.5:3,0,7);wmctx.fill();wmctx.stroke();wmctx.font=`${city?'700 9':'600 7'}px Georgia,serif`;wmctx.fillStyle='#211a13';wmctx.fillText(t.n,x+7,y+2);wmctx.fillStyle='#fff0cf';wmctx.fillText(t.n,x+6,y+1)}
- /* marcador do jogador: círculo vermelho + halo + cruz + etiqueta */
- if(P){const x=wx(wmX(P.x)),y=wy(wmY(P.y));const pulse=5+Math.sin(G.t*5)*2;wmctx.beginPath();wmctx.arc(x,y,pulse+5,0,7);wmctx.fillStyle='rgba(255,70,60,.22)';wmctx.fill();wmctx.beginPath();wmctx.arc(x,y,pulse,0,7);wmctx.fillStyle='#e53935';wmctx.fill();wmctx.strokeStyle='#fff';wmctx.lineWidth=2;wmctx.stroke();wmctx.beginPath();wmctx.arc(x,y,3,0,7);wmctx.fillStyle='#fff';wmctx.fill();wmctx.fillStyle='#fff';wmctx.strokeStyle='#17120e';wmctx.lineWidth=3;wmctx.font='700 10px Arial';wmctx.strokeText('VOCÊ',x+9,y-9);wmctx.fillText('VOCÊ',x+9,y-9)}
+
+function resizeCanvas(){
+ cv.width=innerWidth;
+ cv.height=innerHeight;
+ if(!zoomReady){zoomTiles=Math.max(5,Math.min(30,cv.height/((cv.width<700?1.4:2)*T)));zoomReady=true}
+ cx.imageSmoothingEnabled=false;
 }
-let wmz={s:1,x:0,y:0},wmt=0;const wmOpen=()=>$('wmap').style.display==='flex',wmClose=()=>$('wmap').style.display='none';
-/** Aplica translação/zoom (CSS transform) ao canvas do mapa-múndi. */
-function wmApply(){wmc.style.transform=`translate(${wmz.x}px,${wmz.y}px) scale(${wmz.s})`}
-/** Dá zoom no mapa-múndi em torno de um ponto da tela. */
-function wmZoom(f,x0=innerWidth/2,y0=innerHeight/2){const n=Math.min(8,Math.max(.3,wmz.s*f));f=n/wmz.s;wmz.x=x0-(x0-wmz.x)*f;wmz.y=y0-(y0-wmz.y)*f;wmz.s=n;wmApply()}
-/** Abre o mapa-múndi em tela cheia, ajustado à tela. */
-function wmOpenMap(){if(!P)return;K.clear();$('wmap').style.display='flex';const k=Math.min(innerWidth/WMW,innerHeight/WMH);wmz={s:k,x:(innerWidth-WMW*k)/2,y:(innerHeight-WMH*k)/2};wmc.style.width=WMW+'px';wmc.style.height=WMH+'px';wmApply();worldmap()}
-$('mm').onclick=wmOpenMap;$('wz1').onclick=()=>wmZoom(1.4);$('wz2').onclick=()=>wmZoom(1/1.4);$('wx').onclick=wmClose;
-$('wmap').addEventListener('wheel',e=>{e.preventDefault();wmZoom(e.deltaY<0?1.2:1/1.2,e.clientX,e.clientY)},{passive:false});
-const wmp=new Map();
-$('wmap').addEventListener('pointerdown',e=>{if(e.target.tagName!='BUTTON')wmp.set(e.pointerId,[e.clientX,e.clientY])});
-$('wmap').addEventListener('pointermove',e=>{const o=wmp.get(e.pointerId);if(!o)return;const n=[e.clientX,e.clientY];if(wmp.size==2){const q=[...wmp.entries()].find(([k])=>k!=e.pointerId)[1],d0=Math.hypot(o[0]-q[0],o[1]-q[1]),d1=Math.hypot(n[0]-q[0],n[1]-q[1]);if(d0>0)wmZoom(d1/d0,(n[0]+q[0])/2,(n[1]+q[1])/2)}else{wmz.x+=n[0]-o[0];wmz.y+=n[1]-o[1];wmApply()}wmp.set(e.pointerId,n)});
-const wmUp=e=>wmp.delete(e.pointerId);$('wmap').addEventListener('pointerup',wmUp);$('wmap').addEventListener('pointercancel',wmUp);
-addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(e.target.tagName=='INPUT'||e.target.tagName=='SELECT')return;if(wmOpen()){if(k=='escape'||k=='m')wmClose()}else if(k=='m'&&P&&!S&&!e.repeat)wmOpenMap()});
-/** Ajusta o canvas ao tamanho da janela. */
-function rs(){cv.width=innerWidth;cv.height=innerHeight;if(!zoomReady){zoomTiles=Math.max(5,Math.min(30,cv.height/((cv.width<700?1.4:2)*T)));zoomReady=true}cx.imageSmoothingEnabled=false}addEventListener('resize',rs);rs();
-let last=performance.now(),ht=0;
-/** Laço principal (requestAnimationFrame): upd, draw, HUD e redesenho periódico do mapa. */
-function loop(n){const dt=Math.min(.05,(n-last)/1e3);last=n;if(P){if(!S&&!wmOpen())upd(dt);if(P){draw(dt);ht-=dt;if(ht<=0){ht=.25;hud()}if(wmOpen()){wmt-=dt;if(wmt<=0){wmt=.8;try{worldmap()}catch(err){console.error(err)}}}}}else{cx.fillStyle='#0b0e14';cx.fillRect(0,0,cv.width,cv.height)}requestAnimationFrame(loop)}
+addEventListener('resize',resizeCanvas);
+resizeCanvas();
+
+let lastFrame=performance.now(),hudTimer=0,mapTimer=0;
+function loop(now){
+ const dt=Math.min(.05,(now-lastFrame)/1000);
+ lastFrame=now;
+ if(P){
+  if(!S&&!wmOpen())upd(dt);
+  if(P){
+   draw(dt);
+   hudTimer-=dt;
+   if(hudTimer<=0){hudTimer=.25;hud()}
+   if(wmOpen()){
+    mapTimer-=dt;
+    if(mapTimer<=0){mapTimer=.8;worldmap()}
+   }
+  }
+ }else{
+  cx.fillStyle='#0b0e14';
+  cx.fillRect(0,0,cv.width,cv.height);
+ }
+ requestAnimationFrame(loop);
+}
 requestAnimationFrame(loop);
+

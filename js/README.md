@@ -53,7 +53,7 @@ Se o nome lógico mudar, procure todas as chamadas desse nome em `game.js` antes
 - geração do mundo;
 - cidades e regiões;
 - estradas e terrenos;
-- árvores alinhadas pela base, apenas em terreno válido e menos densas perto de cidades;
+- árvores em posições pseudoaleatórias dentro de setores de 3 × 3 tiles, com copas que podem se sobrepor, troncos sem adjacência, terreno válido e menor densidade perto de cidades;
 - interiores;
 - tiles;
 - NPCs e cidadãos básicos;
