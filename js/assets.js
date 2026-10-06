@@ -11,6 +11,20 @@ const asset=(name,path)=>{ASSET_MANIFEST[name]='assets/westeros/'+path};
  ['baratheon','vivos/player/baratheon.png'],['lennister','vivos/player/lennister.png'],['stark','vivos/player/stark.png'],['targeryan','vivos/player/targeryan.png']
 ].forEach(([name,path])=>asset(name,path));
 
+[
+ ['item_potion','itens/consumiveis/pocao.png'],['item_meat','itens/consumiveis/carne.png'],['item_fish','itens/consumiveis/peixe.png'],
+ ['item_wood','itens/recursos/madeira.png'],['item_iron','itens/recursos/minerio_ferro.png'],['item_copper','itens/recursos/minerio_cobre.png'],['item_silver','itens/recursos/minerio_prata.png'],['item_wolf_pelt','itens/recursos/pele_lobo.png'],['item_bear_pelt','itens/recursos/pele_urso.png'],['item_mammoth_tusk','itens/recursos/presa_mamute.png'],['item_giant_bone','itens/recursos/osso_gigante.png'],['item_cursed_bone','itens/recursos/osso_amaldicoado.png'],['item_wheat','itens/recursos/trigo.png'],['item_blue_flower','itens/recursos/flor_azul.png'],
+ ['item_antique_relic','itens/raros/reliquia_antiga.png'],['item_dragonglass','itens/raros/vidro_dragao.png'],['item_dragon_scale','itens/raros/escama_dragao.png'],['item_ice','itens/raros/coracao_gelado.png'],['item_gold_coin','itens/raros/moeda_ouro.png'],['item_arrow','itens/raros/flecha.png'],
+ ['item_fists','itens/armas/punhos/punhos.png'],['item_dagger','itens/armas/adaga/adaga.png'],['item_long_sword','itens/armas/espada_longa/espada_longa.png'],['item_steel_sword','itens/armas/espada_aco/espada_aco.png'],['item_valyrian_steel','itens/armas/aco_valiriano/aco_valiriano.png'],
+ ['item_clothes','itens/armaduras/roupas.png'],['item_leather_armor','itens/armaduras/gibao_couro.png'],['item_chainmail','itens/armaduras/cota_malha.png'],['item_plate_armor','itens/armaduras/armadura_placas.png'],['item_valyrian_armor','itens/armaduras/armadura_valiriana.png'],
+ ['item_leather_hood','itens/capacetes/capuz_couro.png'],['item_iron_helmet','itens/capacetes/elmo_ferro.png'],['item_wooden_shield','itens/escudos/escudo_madeira.png'],['item_iron_shield','itens/escudos/escudo_ferro.png'],
+ ['item_axe','itens/ferramentas/machado/machado_n1.png'],['item_pickaxe','itens/ferramentas/picareta/picareta_n1.png'],['item_fishing_rod','itens/ferramentas/vara_pesca/vara_pesca_n1.png']
+].forEach(([name,path])=>asset(name,path));
+for(const [name,folder,file]of[['axe','machado','machado'],['pickaxe','picareta','picareta'],['fishing_rod','vara_pesca','vara_pesca']]){
+ for(let level=1;level<=3;level++)for(const hand of['L','R'])asset(`held_${name}_${level}_${hand}`,`itens/ferramentas/${folder}/${file}_n${level}_${hand}.png`);
+ for(let level=1;level<=3;level++)asset(`inventory_${name}_${level}`,`itens/ferramentas/${folder}/${file}_n${level}.png`);
+}
+
 const regions=['campo','dorne','norte'],genders=['m','f'];
 const npcFolders={campones:'01_campones',soldado:'02_soldado',guarda:'03_guarda',mercador:'04_mercador',taverneiro:'05_taverneiro',mendigo:'06_mendigo',ferreiro:'07_ferreiro',sacerdote:'08_sacerdote',maester:'09_maester',prostituta:'10_prostituta',carpinteiro:'11_carpinteiro',viajante:'12_viajante'};
 for(const [name,folder]of Object.entries(npcFolders))for(const region of regions)for(const gender of genders)asset(`${name}_${gender}_${region}`,`vivos/npc/${folder}/${region}/${name}_${gender}_${region}.png`);

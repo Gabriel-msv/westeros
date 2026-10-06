@@ -25,12 +25,12 @@
     <div class="status-cell"><span>POÇÕES</span><strong id="potions"></strong></div>
   </div>
   <div class="hud-meta"><span id="level"></span><span id="coins"></span></div>
-  <div class="status-bar"><span id="hp-label">HP</span><div class="b"><i id="hb" style="background:#b72a2a"></i></div></div>
-  <div class="status-bar"><span id="xp-label">XP</span><div class="b"><i id="xb" style="background:#7dbeb1"></i></div></div>
+  <div class="status-bar"><span id="hp-label">HP</span><div class="b"><i id="hb" style="background:#b72a2a"></i><span id="hp-value" class="status-value"></span></div></div>
+  <div class="status-bar"><span id="xp-label">XP</span><div class="b"><i id="xb" style="background:#7dbeb1"></i><span id="xp-value" class="status-value"></span></div></div>
 </div>
 <section id="inventory-panel" class="p" aria-label="Inventário">
   <div class="inventory-head"><span id="inv-weight"></span><button id="inventory-toggle" class="inventory-toggle" type="button" aria-expanded="true" aria-controls="inventory-body" title="Recolher inventário"><span class="inventory-arrow" aria-hidden="true">▲</span><strong>INVENTÁRIO</strong></button><span></span></div>
-  <div id="inventory-body" class="inventory-body"><div id="inventory-grid" class="inventory-grid"></div></div>
+  <div id="inventory-body" class="inventory-body"><div id="inventory-grid" class="inventory-grid" aria-label="Itens do inventário"></div><div class="inventory-side-slots" aria-label="Equipamentos e descarte"><div class="inventory-slot equipment-slot" data-equip="hd" aria-label="Capacete" title="Capacete"><span class="equipment-label">ELMO</span></div><div class="inventory-slot equipment-slot" data-equip="a" aria-label="Armadura" title="Armadura"><span class="equipment-label">VESTE</span></div><div class="inventory-slot equipment-slot" data-equip="w" aria-label="Arma ou ferramenta" title="Arma ou ferramenta"><span class="equipment-label">MÃO</span></div><div class="inventory-slot equipment-slot" data-equip="s" aria-label="Escudo" title="Escudo"><span class="equipment-label">ESCUDO</span></div><div class="inventory-slot inventory-trash" data-trash aria-label="Lixeira: solte um item para descartá-lo" title="Lixeira — solte aqui para descartar"><span aria-hidden="true">×</span><small>LIXO</small></div></div></div>
 </section>
 <div id="mm" class="p"><canvas id="mmc" width="61" height="61"></canvas></div>
 <section id="terminal" aria-label="Horário e histórico do jogo">
@@ -43,7 +43,7 @@
 </section>
 <div id="md" class="p" role="dialog" aria-modal="true"></div>
 <div id="wmap"><canvas id="wmc"></canvas><div id="wmb"><button id="wz1">+</button><button id="wz2">−</button><button id="wx">✕</button></div><div class="m" id="wmh">Arraste para mover · roda do mouse ou pinça para zoom · ESC ou M fecha</div></div>
-<div id="lgn"><img class="logo" src="assets/westeros/menus/Cr%C3%B4nicas%20de%20Westeros%20Douradas.png" alt="Crônicas de Westeros"><div class="c">
+<div id="lgn"><img class="logo" src="assets/westeros/menus/cronicasdewesteros.png" alt="Crônicas de Westeros"><div class="c">
 <input id="u" placeholder="Nome de usuário" maxlength="16" autocomplete="username">
 <input id="pw" type="password" placeholder="Senha" autocomplete="current-password">
 <input id="cn" placeholder="Nome do personagem (3-16, só ao criar conta)" maxlength="16"><select id="cs"></select><select id="hs"><option value="S">Casa Stark — +20 de vida</option><option value="L">Casa Lannister — +250 de ouro</option><option value="T">Casa Targaryen — +3 de ataque</option><option value="B">Casa Baratheon — +2 de defesa</option></select>

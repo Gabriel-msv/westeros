@@ -24,6 +24,7 @@ Este README é propositalmente **geral e estável**. Ele explica o projeto intei
 │   ├── game.js             # Núcleo principal do jogo
 │   ├── mobile.js           # Controles de toque
 │   ├── reino.js            # NPCs, diálogos, missões e sistema de reino
+│   ├── reino-conteudo.js   # Abordagens, respostas e rumores regionais
 │   └── reino-frases.js     # Banco de frases e personalidades
 └── assets/
     └── westeros/           # Imagens usadas pelo jogo, quando presentes no pacote
@@ -39,6 +40,7 @@ A ordem atual é:
 assets.js
 → game.js
 → reino-frases.js
+→ reino-conteudo.js
 → reino.js
 → mobile.js
 ```
@@ -69,9 +71,11 @@ A câmera principal usa uma altura virtual em tiles:
 
 - **5 tiles:** maior aproximação;
 - **30 tiles:** maior área visível;
-- **15 tiles:** valor inicial.
+- O valor inicial preserva o enquadramento anterior e varia conforme o tamanho da tela.
 
 No computador, a roda do mouse altera a altura da câmera. No celular, o gesto de pinça altera o mesmo valor: abrir a pinça aproxima e fechar a pinça afasta.
+
+O zoom fica entre 5 e 30 tiles de altura. Dentro de casas, ele é bloqueado e a câmera enquadra exatamente a sala de 7 × 5 tiles, sem mostrar o exterior.
 
 O mapa-múndi possui seu próprio zoom e não deve ser confundido com a câmera do mapa principal.
 

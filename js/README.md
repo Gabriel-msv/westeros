@@ -10,6 +10,7 @@ O `index.html` carrega os scripts nesta ordem:
 assets.js
 → game.js
 → reino-frases.js
+→ reino-conteudo.js
 → reino.js
 → mobile.js
 ```
@@ -52,6 +53,7 @@ Se o nome lógico mudar, procure todas as chamadas desse nome em `game.js` antes
 - geração do mundo;
 - cidades e regiões;
 - estradas e terrenos;
+- árvores alinhadas pela base, apenas em terreno válido e menos densas perto de cidades;
 - interiores;
 - tiles;
 - NPCs e cidadãos básicos;
@@ -62,6 +64,7 @@ Se o nome lógico mudar, procure todas as chamadas desse nome em `game.js` antes
 - coleta e interação;
 - equipamentos;
 - lojas;
+- ferramentas em três níveis: compra inicial no mercador, melhorias no ferreiro e eficiência progressiva;
 - inventário;
 - experiência e nível;
 - vida;
@@ -69,6 +72,7 @@ Se o nome lógico mudar, procure todas as chamadas desse nome em `game.js` antes
 - atualização do mundo;
 - renderização Canvas;
 - HUD;
+- inventário com ícones dos itens em `assets/westeros/itens`;
 - minimapa;
 - mapa-múndi;
 - câmera principal.
@@ -96,7 +100,7 @@ Valores atuais:
 ```text
 mínimo: 5 tiles
 máximo: 30 tiles
-inicial: 15 tiles
+inicial: enquadramento anterior, ajustado à tela (entre 5 e 30 tiles)
 ```
 
 Menor valor = mais zoom.
@@ -106,6 +110,8 @@ Maior valor = mais área do mapa visível.
 No desktop, a roda do mouse altera esse valor.
 
 No toque, dois ponteiros são usados para medir a distância da pinça. Aumentar a distância aproxima; diminuir a distância afasta.
+
+Em interiores, a câmera ignora o zoom configurado e enquadra a sala inteira de 7 × 5 tiles. A roda e a pinça não alteram o zoom até o personagem sair da casa.
 
 ### Mapa-múndi
 
@@ -143,13 +149,15 @@ O sistema possui ações como:
 
 - conversar;
 - elogiar;
-- brincar;
-- reclamar;
-- rumores, quando desbloqueados.
+- contar piada;
+- provocar;
+- pedir rumor regional.
 
-As escolhas do jogador ficam em `CHAT_CHOICES`.
+Cada ação sorteia uma abordagem do jogador e uma resposta da personalidade do
+NPC. Rumores incluem uma dica sorteada da região atual.
 
-As respostas são obtidas de `window.REINO_FRASES` quando disponível.
+As saudações e frases legadas usam `window.REINO_FRASES`; abordagens,
+respostas das cinco ações e rumores regionais usam `window.REINO_CONTEUDO`.
 
 ### Limite diário
 
@@ -184,11 +192,17 @@ O arquivo transforma os conjuntos de frases em `window.REINO_FRASES`, que é con
 
 ### Sistema de variações
 
-O projeto possui 10 escolhas do jogador para cada interação principal.
+O banco antigo mantém frases de saudação e variações de personalidade.
 
-As frases são combinadas por abertura e corpo para produzir as variações usadas pelo sistema de diálogo.
+As abordagens e respostas das cinco interações principais ficam em
+`reino-conteudo.js`.
 
-Quando uma escolha específica é enviada para `chatPhrase()`, o índice da escolha é usado para selecionar sua família de resposta, enquanto a abertura fornece as variações.
+## `reino-conteudo.js`
+
+Contém 15 abordagens e 10 respostas por personalidade para cada interação
+(conversar, elogiar, piada, provocar e rumor), além de 100 rumores para cada
+uma das 10 regiões. `reino.js` sorteia as falas e filtra os rumores pela região
+atual; o tom da personalidade acompanha a dica regional.
 
 ### Personalidades ativas
 
