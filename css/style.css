@@ -7,6 +7,27 @@ h3,h1{font-family:Cinzel,Georgia,serif;margin:0 0 6px;letter-spacing:.5px}
 #top-actions{position:absolute;left:10px;top:calc(10px + env(safe-area-inset-top,0px));z-index:6;display:none;align-items:center;gap:8px}
 #out,#btn-reino{background:#3a2b24;border:1px solid #80634f;color:#efc76a;padding:7px 12px;white-space:nowrap;border-radius:7px;cursor:pointer}
 #out:hover,#btn-reino:hover{background:#503b2c;color:#ffe3a0}
+#btn-creator{background:#31513e;border:1px solid #6b9b72;color:#e2f0d9;padding:7px 12px;white-space:nowrap;border-radius:7px;cursor:pointer}
+#btn-creator[aria-pressed="true"]{background:#527b48;color:#fff4cf}
+#creator-bar{box-sizing:border-box;position:absolute;z-index:8;top:58px;left:50%;transform:translateX(-50%);width:min(900px,calc(100vw - 20px));display:flex;align-items:center;gap:8px;padding:8px;background:rgba(25,31,27,.96);border:1px solid #79936e;border-radius:7px;box-shadow:0 5px 18px #0009;color:#eef2e8}
+#creator-bar[hidden],#btn-creator[hidden]{display:none}
+.creator-tools,.creator-file-tools{display:flex;align-items:center;gap:4px;flex:none}
+.creator-tools button,.creator-file-tools button{min-width:32px;height:32px;padding:3px 8px;border:1px solid #687967;border-radius:4px;background:#303a32;color:#eff2e6}
+.creator-tools button{font-size:18px;line-height:1}
+.creator-tools button[aria-pressed="true"]{border-color:#e5c879;background:#6b7048;color:#fff4cf}
+.creator-tools button:disabled{opacity:.35}
+#creator-palette{flex:1;min-width:60px;display:grid;grid-auto-flow:column;grid-auto-columns:34px;gap:4px;overflow-x:auto;padding:2px 3px;scrollbar-color:#74846b #202720;scrollbar-width:thin}
+.creator-swatch{box-sizing:border-box;width:32px;height:32px;padding:2px;display:grid;place-items:center;overflow:hidden;border:2px solid #a9b19f;border-radius:3px;background:linear-gradient(145deg,color-mix(in srgb,var(--swatch,#55734e),white 20%),var(--swatch,#55734e) 52%,color-mix(in srgb,var(--swatch,#55734e),black 25%));color:#f9f4df;font:700 12px Georgia,serif;text-shadow:0 1px 3px #000;image-rendering:pixelated}
+.creator-swatch img{display:block;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;pointer-events:none}
+.creator-swatch-missing{font:700 10px/1 system-ui,sans-serif}
+.creator-swatch[aria-pressed="true"]{outline:2px solid #f0d477;outline-offset:1px}
+.creator-swatch.creator-tree{background:#31543b;border-color:#86a879}
+.creator-brush{flex:none;display:flex;align-items:center;gap:5px;font:11px system-ui,sans-serif;white-space:nowrap}
+.creator-brush input[type="checkbox"]{accent-color:#8eb879;margin:0}
+.creator-brush input[type="range"]{width:62px;margin:0;padding:0;accent-color:#8eb879}
+.creator-brush output{min-width:12px;text-align:center;color:#f0d477}
+#creator-count{flex:none;color:#c5d2bd;font:10px system-ui,sans-serif;white-space:nowrap}
+body.creator-mode #inventory-panel,body.creator-mode #terminal{display:none!important}
 #settings{box-sizing:border-box;width:36px;height:36px;padding:0;display:grid;place-items:center;background:#3a2b24;border:1px solid #80634f;border-radius:8px;color:#efc76a;font-size:20px;line-height:1}
 #settings:hover{background:#503b2c;color:#ffe3a0}
 #settings-panel{box-sizing:border-box;left:10px;top:calc(54px + env(safe-area-inset-top,0px));width:min(230px,calc(100vw - 20px));z-index:8;padding:12px;background:rgba(58,43,36,.98);border-color:#80634f;color:#f3e9db;font-family:Cinzel,Georgia,serif}
@@ -143,6 +164,12 @@ button{cursor:pointer;background:#2a3550}button:hover:not(:disabled){background:
 .mapopen #mobile-dock,.mapopen #mobile-hint{display:none!important}
 @media (max-width:900px),(pointer:coarse){
  #mobile-ui{display:block}
+ #creator-bar{top:calc(56px + env(safe-area-inset-top,0px));width:calc(100vw - 12px);flex-wrap:wrap;justify-content:space-between;gap:5px;padding:6px}
+ #creator-palette{order:3;flex-basis:100%;grid-auto-columns:32px}
+ .creator-swatch{width:30px;height:30px}
+ .creator-brush{font-size:10px}
+ .creator-brush input[type="range"]{width:48px}
+ #creator-count{font-size:9px}
  html,body{overscroll-behavior:none;touch-action:none}
  #hud{width:min(480px,calc(100vw - 24px));bottom:calc(134px + env(safe-area-inset-bottom,0px));padding:5px 8px;font-size:11px}
  .status-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;margin-bottom:3px}

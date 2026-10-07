@@ -1132,10 +1132,10 @@
     }
     if(b==='mountain')return H(x,y,12)>.84?11:5;
     if(b==='forest')return y<-61?10:3;
-    return H(x,y,4)>.93?1:2;
+    return 2;
   }
   /** Chave numérica de (x,y) para cache e conjunto de cortes. */
-  const kk = (x, y) => (x + 5e4) * 1e5 + y + 5e4, tc = new Map(), cut = new Set(), treeProgress = new Map(), treeHitFx = new Map(), treeFallFx = new Map(), SOL = new Set([0, 5, 7, 9, 11, 12, 13, 18, 19, 21]), TREE_GROUND = new Set([1, 2, 3, 4, 10]);
+  const kk = (x, y) => (x + 5e4) * 1e5 + y + 5e4, tc = new Map(), cut = new Set(), treeProgress = new Map(), treeHitFx = new Map(), treeFallFx = new Map(), creativeEdits = new Map(), SOL = new Set([0, 5, 7, 9, 11, 12, 13, 18, 19, 21]), TREE_GROUND = new Set([1, 2, 3, 4, 10]);
   function rawTile(x, y) {
     const k = kk(x, y);
     let v = tc.get(k);
@@ -1163,6 +1163,7 @@
     };
   }
   function treeCandidate(x, y, size) {
+    for(let dy=0;dy<size;dy++)for(let dx=0;dx<size;dx++)if(creativeEdits.has(`${x+dx},${y+dy}`))return null;
     const rootX = x + 1, rootY = y + size - 1, found = treeCell(rootX, rootY);
     if (!found || found.size !== size) return null;
     for (let dy = 0; dy < size; dy++) for (let dx = 0; dx < size; dx++) {
@@ -1218,6 +1219,10 @@
   function markTerrainCut(x,y){cut.add(kk(x,y));treeAnchorCache.clear()}
   function clearTreeAnchorCache(){treeAnchorCache.clear()}
   function treeAtPosition(x, y) {
+    for(let dy=-2;dy<=0;dy++)for(let dx=-2;dx<=0;dx++){
+      const edit=creativeEdits.get(`${x+dx},${y+dy}`);
+      if(edit?.type==='tree'&&x>=x+dx&&x<x+dx+edit.size&&y>=y+dy&&y<y+dy+edit.size)return{x:x+dx,y:y+dy,size:edit.size,kind:edit.tree,creative:true};
+    }
     let nearest=null,nearestDistance=Infinity;
     for(const size of [3,2,1]){
       for (let cellY = Math.floor((y - size + 1) / size); cellY <= Math.floor(y / size); cellY++) {
@@ -1241,6 +1246,7 @@
   const cactusAt=(x,y)=>{const tree=treeAtPosition(x,y);return tree&&tree.kind==='cacto'?tree:null};
   function treesInView(x0, y0, x1, y1) {
     const trees = [];
+    for(const[key,edit]of creativeEdits){if(edit?.type!=='tree')continue;const[x,y]=key.split(',').map(Number);if(x+edit.size>=x0&&x<=x1&&y+edit.size>=y0&&y<=y1)trees.push({x,y,size:edit.size,kind:edit.tree,creative:true})}
     for(const size of [3,2,1]){
       for (let cellY = Math.floor((y0 - size + 1) / size); cellY <= Math.floor(y1 / size); cellY++) {
         for (let cellX = Math.floor((x0 - size + 1) / size); cellX <= Math.floor(x1 / size); cellX++) {
@@ -1278,6 +1284,8 @@
   }
   /** Tiles de árvore viram terreno sob o sprite; apenas os pontos de contato da árvore têm colisão. */
   function tile(x, y) {
+    const edit=creativeEdits.get(`${x},${y}`);
+    if(edit?.type==='block')return edit.tile;
     const v = rawTile(x, y);
     if (cut.has(kk(x, y)) && v === 11) return 5;
     if (v === 3) return y > 1400 ? 1 : 2;
@@ -1429,7 +1437,7 @@
     TW, RL, RV, NP, RN, RT, RCELL, rcache, rdead, RM, RCH, RFV, RFN,
     inTown, HSE, room, lay, road, riverAt, ruralCell, ruralAt, ruralTile,
     gen, kk, tc, cut, markTerrainCut, clearTreeAnchorCache, treeProgress, treeHitFx, treeFallFx, SOL, TREE_GROUND, isLand, isCoast, biomeAt, mountainAt, WORLD,
-    rawTile, treeCell, treeAtAnchor, treeAtPosition, treeSolid, treesInView, bushesInView,
+    rawTile, treeCell, treeAtAnchor, treeAtPosition, treeSolid, treesInView, bushesInView, creativeEdits,
     cactusAt, interactionTarget, tile
   });
   window.wmOpen = wmOpen;

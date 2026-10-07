@@ -6,7 +6,14 @@
 <link rel="stylesheet" href="css/style.css">
 </head><body>
 <canvas id="g"></canvas>
-<div id="top-actions"><button id="out">◀ Salvar e sair</button><button id="btn-reino" type="button" title="Reino e Exército (R)">👑 Reino</button><button id="settings" type="button" aria-label="Configurações" aria-expanded="false" aria-controls="settings-panel" title="Configurações">⚙</button></div>
+<div id="top-actions"><button id="out">◀ Salvar e sair</button><button id="btn-reino" type="button" title="Reino e Exército (R)">👑 Reino</button><button id="btn-creator" type="button" title="Modo criador">Construir</button><button id="settings" type="button" aria-label="Configurações" aria-expanded="false" aria-controls="settings-panel" title="Configurações">⚙</button></div>
+<section id="creator-bar" aria-label="Ferramentas de construção" hidden>
+  <div class="creator-tools"><button type="button" data-creator-tool="paint" aria-label="Construir" title="Construir">▧</button><button type="button" data-creator-tool="delete" aria-label="Apagar construção" title="Apagar construção">×</button><button id="creator-undo" type="button" aria-label="Desfazer" title="Desfazer (Ctrl+Z)">↶</button><button id="creator-redo" type="button" aria-label="Refazer" title="Refazer (Ctrl+Y)">↷</button></div>
+  <div id="creator-palette" role="group" aria-label="Blocos e árvores"></div>
+  <label class="creator-brush"><input id="creator-brush-toggle" type="checkbox"> Pincel <input id="creator-brush-size" type="range" min="1" max="8" value="1" aria-label="Raio do pincel"><output id="creator-brush-value">1</output></label>
+  <div class="creator-file-tools"><button id="creator-export" type="button" title="Salvar construções em arquivo JSON">Salvar arquivo</button><button id="creator-import" type="button" title="Importar construções JSON">Importar</button><input id="creator-file" type="file" accept="application/json,.json" hidden></div>
+  <span id="creator-count" aria-live="polite">0 peças</span>
+</section>
 <section id="settings-panel" class="p" role="dialog" aria-labelledby="settings-title" hidden>
   <div class="settings-head"><strong id="settings-title">Configurações</strong><button id="settings-close" type="button" aria-label="Fechar configurações">×</button></div>
   <fieldset>

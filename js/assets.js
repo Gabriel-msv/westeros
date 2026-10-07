@@ -10,7 +10,7 @@ const asset=(name,path)=>{ASSET_MANIFEST[name]='assets/westeros/'+path};
  ['minério','pedras/minério.png'],['minerio','pedras/minério.png'],['montanha','pedras/montanha.png'],
  ['baratheon','vivos/player/baratheon.png'],['lennister','vivos/player/lennister.png'],['stark','vivos/player/stark.png'],['targeryan','vivos/player/targeryan.png']
 ].forEach(([name,path])=>asset(name,path));
-for(const direction of ['N','S','L','R'])asset(`barco_${direction}`,`veiculos/barcos/barco_${direction}.png`);
+for(const direction of ['N','S','L','R'])asset(`barco_${direction}`,`veiculos/barco_${direction}.png`);
 
 [
  ['item_potion','itens/consumiveis/pocao.png'],['item_meat','itens/consumiveis/carne.png'],['item_fish','itens/consumiveis/peixe.png'],
