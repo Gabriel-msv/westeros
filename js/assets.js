@@ -1,15 +1,16 @@
-const WATER_MS=320,ASSET_MANIFEST=Object.create(null),TX=Object.create(null);
+const WATER_MS=1000,ASSET_MANIFEST=Object.create(null),TX=Object.create(null);
 const asset=(name,path)=>{ASSET_MANIFEST[name]='assets/westeros/'+path};
 
 [
  ['agua','aguas/agua.png'],['agua1','aguas/agua1.png'],['agua2','aguas/agua2.png'],
  ['areia','areias/areia.png'],['areia2','areias/areia2.png'],['areiadeserto','areias/areiadeserto.png'],
- ['cacto','arvores/cacto.png'],['carvalho','arvores/carvalho.png'],['palmeira','arvores/palmeira.png'],['pinheiro','arvores/pinheiro.png'],
+ ['arbusto','arvores/arbusto.png'],['cacto','arvores/cacto.png'],['carvalho','arvores/carvalho.png'],['palmeira','arvores/palmeira.png'],['pinheiro','arvores/pinheiro.png'],
  ['báu','cidade/báu.png'],['bau','cidade/báu.png'],['palA','cidade/paralelepipedoalternativo.png'],['palN','cidade/paralelepipedonormal.png'],['pedregulho','cidade/pedregulho.png'],['porta','cidade/porta.png'],['porto','cidade/porto.png'],['tabuas','cidade/tabuas.png'],['telhas','cidade/telhas.png'],['tijolom','cidade/tijolo marrom.png'],['tijolo','cidade/tijolo.png'],['tijolon','cidade/tijolonegro.png'],
  ['estrada','gramas/estrada .png'],['grama','gramas/grama.png'],['grama2','gramas/grama2.png'],['grama3','gramas/grama3.png'],['neve','gramas/neve.png'],
  ['minério','pedras/minério.png'],['minerio','pedras/minério.png'],['montanha','pedras/montanha.png'],
  ['baratheon','vivos/player/baratheon.png'],['lennister','vivos/player/lennister.png'],['stark','vivos/player/stark.png'],['targeryan','vivos/player/targeryan.png']
 ].forEach(([name,path])=>asset(name,path));
+for(const direction of ['N','S','L','R'])asset(`barco_${direction}`,`veiculos/barcos/barco_${direction}.png`);
 
 [
  ['item_potion','itens/consumiveis/pocao.png'],['item_meat','itens/consumiveis/carne.png'],['item_fish','itens/consumiveis/peixe.png'],

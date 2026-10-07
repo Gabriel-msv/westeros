@@ -51,21 +51,26 @@ Se o nome lógico mudar, procure todas as chamadas desse nome em `game.js` antes
 ### Responsabilidades
 
 - geração do mundo;
-- cidades e regiões;
+- filtro visual regional com tons frios azulados no Norte e tons quentes no sul, graduados pela latitude;
+- cidades e regiões, com dez formatos determinísticos de casas aplicados a todas as localidades; os bairros têm áreas ampliadas, as casas evitam estradas e estruturas, cada porta recebe um caminho contínuo até a rua e NPCs fixos/moradores recém-gerados não ocupam essas rotas;
 - estradas e terrenos;
-- árvores em posições pseudoaleatórias dentro de setores de 3 × 3 tiles, com copas que podem se sobrepor, troncos sem adjacência, terreno válido e menor densidade perto de cidades;
+- árvores em posições pseudoaleatórias dentro de setores de 3 × 3 tiles, com copas que podem se sobrepor, troncos sem adjacência, terreno válido e menor densidade perto de cidades; o clima de campo também recebe arbustos decorativos, e Dorne gera palmeiras e cactos de dois tamanhos com colisão danosa;
 - interiores;
+- pontos de spawn de cidade são validados para evitar telhados e portas; ao sair
+  de uma casa, o jogador retorna a um tile caminhável fora da porta. Saves antigos
+  com posição inválida são corrigidos ao carregar;
 - tiles;
 - NPCs e cidadãos básicos;
 - monstros;
+- drops de árvores e inimigos espalhados no chão, com salto ao cair e atração ao jogador próximo;
 - personagem;
-- movimentação;
+- movimentação, nado em todos os corpos d'água e navegação em barco;
 - combate;
 - coleta e interação;
 - equipamentos;
 - lojas;
 - ferramentas em três níveis: compra inicial no mercador, melhorias no ferreiro e eficiência progressiva;
-- inventário;
+- inventário, incluindo arraste para equipar, retirar equipamento e descartar itens;
 - experiência e nível;
 - vida;
 - save/load;
@@ -91,25 +96,31 @@ A função `draw()` calcula a área visível e desenha os tiles e entidades no C
 
 O tamanho do tile visível é determinado pela câmera e pela altura virtual da tela.
 
+O terreno é composto em canvases temporários de 8 × 8 tiles, limitados a 24 blocos
+em memória. Blocos sem água são reutilizados até a câmera/zoom ou o terreno mudar;
+blocos com água são atualizados quando a animação troca de quadro. Minerar,
+derrubar árvores e carregar outro save invalidam o cache para manter o mapa correto.
+As três texturas de água ficam estáveis por um segundo e fazem uma transição suave
+de um segundo entre quadros.
+
 ### Câmera principal
 
-A câmera usa uma variável de altura em tiles.
+A câmera normal mantém a altura fixa em 10 tiles. A roda do mouse e a pinça de
+toque só alteram o zoom na sessão especial `sudo`.
 
 Valores atuais:
 
 ```text
-mínimo: 5 tiles
-máximo: 30 tiles
-inicial: enquadramento anterior, ajustado à tela (entre 5 e 30 tiles)
+normal: 10 tiles fixos
+sudo: zoom ajustável entre 5 e 30 tiles
 ```
 
-Menor valor = mais zoom.
+Menor valor = mais zoom. Maior valor = mais área do mapa visível.
 
-Maior valor = mais área do mapa visível.
+No desktop, a roda do mouse altera esse valor somente em `sudo`.
 
-No desktop, a roda do mouse altera esse valor.
-
-No toque, dois ponteiros são usados para medir a distância da pinça. Aumentar a distância aproxima; diminuir a distância afasta.
+No toque, a pinça altera esse valor somente em `sudo`. Na câmera normal, o
+personagem sempre é exibido com 10 tiles de altura. Ao caminhar em água rasa, o personagem é desenhado parcialmente submerso.
 
 Em interiores, a câmera ignora o zoom configurado e enquadra a sala inteira de 7 × 5 tiles. A roda e a pinça não alteram o zoom até o personagem sair da casa.
 
@@ -245,10 +256,19 @@ Define a direção de interação. Ao soltar, pode atacar ou executar uma intera
 Os botões móveis acionam teclas existentes do jogo, como:
 
 - `E` — usar/interagir;
+- clique/toque em um baú visível no interior para abri-lo (alcance de até 2 tiles);
 - `Q` — poção;
 - `C` — cavalo;
+- `B` — lançar/embarcar no barco ou desembarcar;
 - `R` — reino;
 - `I` — inventário.
+- Digite `gold` durante o jogo para definir seu ouro para o máximo.
+
+Barqueiros são posicionados em localidades próximas de rios ou costa e vendem o
+barco. O barco ocupa uma área de colisão de 3 × 3 tiles, usa sprites nos quatro
+sentidos e navega a 1,5× a velocidade normal do cavalo; o jogador se posiciona
+no assento de popa correspondente à direção do barco. Sem barco, o jogador pode
+nadar pelos corpos d'água.
 
 ### Importante
 

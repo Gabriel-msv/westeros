@@ -35,18 +35,34 @@ const myPw=()=>Math.round(atkV()*8+defV()*10+P.lvl*15+armyPw());
 const lord=ti=>{const t=TW[ti],h=hs2('lord'+ti),g=h%2?'f':'m';return{g,army:t.n.includes('Porto Real')?100:TR(t)==1?10+h%11:TR(t)==2?25+h%21:50+h%26,pw:Math.round(300*TR(t)*(.9+(h%30)/100)),n:(g=='f'?'Lady ':'Lord ')+(g=='f'?FF:FM)[h%16]+' de '+t.n.split(' / ')[0]}};
 const lordPw=ti=>Math.round(lord(ti).pw*(1-sup(ti)/200)),need=ti=>50+TR(TW[ti])*5;
 /* ---- posicionamento dos NPCs novos (lord, estribeiro, barqueiro) ---- */
-const LD=[],occ=(x,y)=>NP.some(n=>n.x==x&&n.y==y)||LD.some(n=>n&&n.x==x&&n.y==y)||SOL.has(tile(x,y))||tile(x,y)==17;
+const LD=[],occ=(x,y)=>NP.some(n=>n.x==x&&n.y==y)||LD.some(n=>n&&n.x==x&&n.y==y)||TW.some(t=>t.housePaths&&t.housePaths.has(x+','+y))||SOL.has(tile(x,y))||tile(x,y)==17;
 function spot(t,list){for(const[a,b]of list)if(!occ(t.x+a,t.y+b))return[t.x+a,t.y+b];for(let r=1;r<8;r++)for(let a=-r;a<=r;a++)for(let b=-r;b<=r;b++)if(!occ(t.x+a,t.y+b))return[t.x+a,t.y+b];return null}
 const ROLE={f:'Ferreiro',m:'Mercador',e:'Estalajadeiro',pr:'Sacerdote',h:'Estribeiro',bt:'Barqueiro'};
-const PORTS=TW.filter(t=>['Porto Real','Pedra do Dragão','Porto Branco','Gulltown','Pyke','Lannisporto','Vilavelha','Ponta da Tempestade','Lance do Sol','Seagard'].some(p=>t.n.includes(p)));
 function mkNP(t,k,list,extra){const p=spot(t,list);if(!p)return null;const key=t.i+'.v'+k,g=hs2(key)%2?'f':'m',pe=person(key,g,reg(t.y));return Object.assign({n:pe.n+' ('+ROLE[k]+')',k,ti:t.i,x:p[0],y:p[1],dx:p[0],dy:p[1],g,key,pe},extra)}
+function bargeSpot(t){
+ const maxRadius=Math.min(Math.max(t.rx,t.ry)+3,48);
+ for(let radius=0;radius<=maxRadius;radius++){
+  for(let y=-radius;y<=radius;y++)for(let x=-radius;x<=radius;x++){
+   if(Math.max(Math.abs(x),Math.abs(y))!==radius)continue;
+   const wx=t.x+x,wy=t.y+y;
+   if(inTown(wx,wy)!==t||occ(wx,wy))continue;
+   let nearWater=false;
+   for(let dy=-2;dy<=2&&!nearWater;dy++)for(let dx=-2;dx<=2;dx++){
+    if(riverAt(wx+dx,wy+dy)||!isLand(wx+dx,wy+dy)){nearWater=true;break}
+   }
+   if(nearWater)return[wx,wy];
+  }
+ }
+ return null;
+}
 NP.forEach(n=>{if(n.tmp||!ROLE[n.k])return;n.key=n.ti+'.v'+n.k;n.g=hs2(n.key)%2?'f':'m';n.pe=person(n.key,n.g,reg(TW[n.ti].y));n.n=n.pe.n+' ('+ROLE[n.k]+')'});
-DOM.forEach(t=>{const h=mkNP(t,'h',[[-2,2],[-3,1],[-2,3]]);if(h)NP.push(h);if(PORTS.includes(t)){const b=mkNP(t,'bt',[[2,2],[3,1],[2,3]]);if(b)NP.push(b)}
+DOM.forEach(t=>{const h=mkNP(t,'h',[[-2,2],[-3,1],[-2,3]]);if(h)NP.push(h);
+ const berth=bargeSpot(t);if(berth){const key=t.i+'.vbt',g=hs2(key)%2?'f':'m',pe=person(key,g,reg(t.y));NP.push({n:pe.n+' (Barqueiro)',k:'bt',ti:t.i,x:berth[0],y:berth[1],dx:berth[0],dy:berth[1],g,key,pe})}
  const L=lord(t.i),p=spot(t,[[0,4],[0,3],[3,0],[-3,0],[-3,3],[3,3]]);if(p)LD[t.i]={n:L.n,k:'lord',ti:t.i,x:p[0],y:p[1],dx:p[0],dy:p[1],g:L.g,lord:1}});
 function syncLords(){for(let i=NP.length-1;i>=0;i--)if(NP[i].lord)NP.splice(i,1);DOM.forEach(t=>{if(!P.dom[t.i]&&LD[t.i])NP.push(LD[t.i])})}
 /* ---- ganchos no game.js ---- */
-SK.push('fr','qs','dom','army','tax','gar','mar');
-const _start=start;start=function(u,s){_start(u,s);P.fr=P.fr||{};P.qs=P.qs||[];P.dom=P.dom||{};P.army=P.army||{s:0,a:0,k:0};P.tax=P.tax||0;P.gar=P.gar||{};P.mar=P.mar||[];syncLords();marchTick()};
+SK.push('fr','qs','dom','army','tax','gar','mar','boatOwned','boatAt');
+const _start=start;start=function(u,s){_start(u,s);P.boatOwned=!!P.boatOwned;P.boatMounted=false;if(!P.boatOwned||!P.boatAt||!Number.isInteger(P.boatAt.x)||!Number.isInteger(P.boatAt.y)||!['N','S','L','R'].includes(P.boatAt.dir))P.boatAt=null;P.fr=P.fr||{};P.qs=P.qs||[];P.dom=P.dom||{};P.army=P.army||{s:0,a:0,k:0};P.tax=P.tax||0;P.gar=P.gar||{};P.mar=P.mar||[];syncLords();marchTick()};
 const _kill=kill;kill=function(m){const k=m.t;_kill(m);(P.qs||[]).forEach(q=>{if(q.t=='h'&&q.m==k&&q.got<q.n){q.got++;msg('Missão: '+q.got+'/'+q.n+' '+MT[k].n,'#e2b04a')}})};
 const _talk=talk;talk=function(){if(_talk())return 1;const near=o=>Math.max(Math.abs(o.x-P.x),Math.abs(o.y-P.y))<=1,c=CZ.find(c=>!c.in&&near(c))||RN.find(near);if(!c)return 0;const e=ident(c);S={k:'soc',ti:c.ti!==undefined?c.ti:nearestTown().t.i,key:c.key,pe:e,n:e.n};shop();return 1};
 function ident(c){if(!c.key){if(typeof c.id=='string'){const ti=c.ti!==undefined?c.ti:nearestTown().t.i;c.ti=ti;c.key='r'+c.id+'.'+ti}else{const u=new Set(CZ.filter(z=>z.ti==c.ti&&z.sl!==undefined).map(z=>z.sl));let j=0;while(u.has(j))j++;c.sl=j;c.key=c.ti+'.c'+j}}
@@ -63,6 +79,7 @@ const bR=$('btn-reino');if(bR)bR.onclick=()=>{if(!P||S||(typeof wmOpen=='functio
 /* ---- itens de drop com função ---- */
 const USE={Carne:'+25 vida',Peixe:'+15 vida','Coração Gelado':'+50 vida','Pele de Lobo':'+25% durabilidade da armadura','Pele de Urso':'+40% durabilidade da armadura','Presa de Mamute':'+40% durabilidade da arma','Osso de Gigante':'+50% durabilidade da arma','Adaga Enferrujada':'+10% durabilidade da arma','Vidro de Dragão':'arma como nova','Escama de Dragão':'restaura todo o equipamento','Osso Amaldiçoado':'+120 XP'};
 const lvl=()=>{while(P.xp>=nx()){P.xp-=nx();P.lvl++;P.hp=mh();msg('Você alcançou o nível '+P.lvl+'!','#ffd24a')}};
+const BOAT_PRICE=1200;
 const RK=window.RK={
  use(k){if(!P.inv[k])return;if(['Carne','Peixe','Coração Gelado'].includes(k)&&P.hp>=mh())return msg('Sua vida já está cheia.','#9aa3b2');const heal=n=>{P.hp=Math.min(mh(),P.hp+n);fx(P.x,P.y,'+'+n,'#7f7')},du=(s,n)=>{if(!P[s])return 0;P.du[s]=Math.min(100,P.du[s]+n);return 1};let ok=1;
   if(k=='Carne')heal(25);else if(k=='Peixe')heal(15);else if(k=='Coração Gelado')heal(50);
@@ -81,7 +98,7 @@ const RK=window.RK={
  turn(){const e=S,q=P.qs.find(q=>q.key==e.key);if(!q)return;if(q.t=='f'){if((P.inv[q.i]||0)<q.n)return msg('Faltam itens.','#ff8a80');P.inv[q.i]-=q.n}else if(q.got<q.n)return msg('Missão incompleta.','#ff8a80');
   if(q.ri)P.inv[q.ri]=(P.inv[q.ri]||0)+q.rq;else P.gold+=q.rg;P.qs.splice(P.qs.indexOf(q),1);addF(e.key,10);chatPush(e,'me','Concluí a missão.');chatPush(e,'them',chatPhrase(e,'mission_done'));msg('Missão cumprida! Recompensa recebida.','#9f9');save();render()},
  buyHorse(){const c=pc(600);if(P.horse)return;if(P.gold<c)return msg('Ouro insuficiente.','#ff8a80');P.gold-=c;P.horse=true;msg('Você comprou um cavalo! Monte com C.','#e2b04a');save();render()},
- sail(i,c){if(P.gold<c)return msg('Ouro insuficiente.','#ff8a80');const t=TW[i];P.gold-=c;P.x=t.x;P.y=t.y+2;P.dx=P.x;P.dy=P.y;P.mounted=false;mons.length=0;CZ.length=0;closeShop();msg('Você navegou até '+t.n+'.','#8fd0f0')},
+ buyBoat(){if(P.boatOwned)return msg('Você já possui um barco.','#9aa3b2');if(P.gold<BOAT_PRICE)return msg('Ouro insuficiente.','#ff8a80');P.gold-=BOAT_PRICE;P.boatOwned=true;msg('Você comprou um barco! Aproxime-se da água e aperte B para lançá-lo.','#8fd0f0');save();render()},
  rec(k){const t=inTown(P.x,P.y);if(!t||!P.dom[t.i])return msg('Só é possível recrutar numa cidade que você domina.','#9aa3b2');if(armyN()>=cap())return msg('Limite do exército atingido. Domine mais cidades.','#ff8a80');if(P.gold<AU[k][1])return msg('Ouro insuficiente.','#ff8a80');P.gold-=AU[k][1];P.army[k]=(P.army[k]||0)+1;msg(`Recrutou 1× ${AU[k][0]} para a sua comitiva.`,'#e2b04a');save();render()},
  war(){S={k:'war',n:'Mesa de Guerra',st:'tgt',send:{}};render()},
  wtgt(ti){S.to=ti;S.st='src';S.send={};render()},
@@ -121,7 +138,7 @@ function render(){const e=S;let h='';$('md').classList.toggle('chat-mode',e.k=='
   h+='</div></div>'}
  else if(e.k=='lord'){const L=lord(e.ti),s=sup(e.ti),M=myPw(),Lp=lordPw(e.ti);h=`<h3>${L.n}</h3><div class=m>Exército: ${L.army} soldados · Poder do lord: ${Lp} · Seu poder: ${M} · Chance de vitória: ${Math.round(100*M/(M+Lp))}%</div><div class=m>Apoio do povo: ${s}% (rendição exige ${need(e.ti)}%). Cada amizade na cidade enfraquece o lord.</div>`+row('Exigir rendição (com apoio do povo)',`RK.surr(${e.ti})`,'Exigir',s<need(e.ti))+row('Desafiar para a batalha (risco de derrota)',`RK.fight(${e.ti})`,'Batalhar')}
  else if(e.k=='h')h=`<h3>${e.n}</h3><div class=m>Ouro: ${P.gold}g</div>`+row('Cavalo de viagem (mais rápido, sobe na estrada) — '+pc(600)+'g','RK.buyHorse()',P.horse?'Você já tem':'Comprar',!!P.horse)+'<div class=m>Monte e desmonte com C. O cavalo não entra na água.</div>'+row('Conversar com '+e.pe.n.split(' ')[0],'RK.openSoc()','Interagir');
- else if(e.k=='bt'){h=`<h3>${e.n}</h3><div class=m>Ouro: ${P.gold}g · Destinos (preço por distância)</div>`;PORTS.filter(t=>t.i!=e.ti).forEach(t=>{const c=Math.round(Math.hypot(t.x-TW[e.ti].x,t.y-TW[e.ti].y)/4)+25;h+=row(`${t.n} — ${c}g`,`RK.sail(${t.i},${c})`,'Embarcar',P.gold<c)});h+=row('Conversar com '+e.pe.n.split(' ')[0],'RK.openSoc()','Interagir')}
+ else if(e.k=='bt')h=`<h3>${e.n}</h3><div class=m>Ouro: ${P.gold}g</div>`+row('Barco de viagem — '+BOAT_PRICE+'g','RK.buyBoat()',P.boatOwned?'Você já tem':'Comprar',!!P.boatOwned)+'<div class=m>Aperte B junto à água para lançar e embarcar. Navegue com WASD; B desembarca na margem.</div>';
  else if(e.k=='war'){const sd=e.send,tot=sendTot(sd);
   if(e.st=='tgt'){h='<h3>Mesa de Guerra — escolha o alvo</h3><div class=m>Cidades ainda não dominadas, da mais próxima à mais distante de você.</div>';DOM.filter(t=>!P.dom[t.i]&&!P.mar.some(m=>m.to==t.i)).sort((a,b)=>Math.hypot(a.x-P.x,a.y-P.y)-Math.hypot(b.x-P.x,b.y-P.y)).forEach(t=>{const L=lord(t.i);h+=row(`${t.n.split(' / ')[0]} <span class=m>(${kof(t).replace('Reino d','d')}) · guarnição ${L.army} · apoio ${sup(t.i)}%</span>`,`RK.wtgt(${t.i})`,'Atacar')});h+=row('Voltar','RK.back2()','Voltar')}
   else if(e.st=='src'){const l=wsrc();h=`<h3>Atacar ${TW[e.to].n.split(' / ')[0]}</h3><div class=m>Guarnição inimiga: ${lord(e.to).army} · Escolha quantos homens enviar (cada cidade mantém ${MING} de guarda).</div>`;if(!l.length)h+='<div class=m>Você não tem tropas disponíveis. Recrute em cidades dominadas (R).</div>';

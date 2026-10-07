@@ -29,7 +29,7 @@ h3,h1{font-family:Cinzel,Georgia,serif;margin:0 0 6px;letter-spacing:.5px}
 #hud .b{position:relative;height:16px;margin:0;border:1px solid #80634f;border-radius:12px}
 #hud .b i{position:absolute;inset:0 auto 0 0}
 .status-value{position:absolute;inset:0;z-index:1;display:flex;align-items:center;justify-content:center;color:#fff;font:700 9px/1 system-ui,sans-serif;text-shadow:0 1px 2px #000,1px 0 2px #000,-1px 0 2px #000;pointer-events:none}
-#inventory-panel{box-sizing:border-box;display:none;flex-direction:column;overflow:hidden;left:50%;top:18vh;bottom:auto;transform:translateX(-50%);width:min(540px,calc(100vw - 32px));height:auto;z-index:2;padding:12px 18px;background:rgba(58,43,36,.96);border-color:#80634f;box-shadow:0 8px 22px #0009;transition:height 240ms ease,opacity 180ms ease,transform 240ms ease,padding 240ms ease,border-color 240ms ease}
+#inventory-panel{box-sizing:border-box;display:none;flex-direction:column;overflow:hidden;left:50%;top:18vh;bottom:auto;transform:translateX(-50%);width:min(540px,calc(100vw - 32px));height:auto;z-index:4;padding:12px 18px;background:rgba(58,43,36,.96);border-color:#80634f;box-shadow:0 8px 22px #0009;transition:height 240ms ease,opacity 180ms ease,transform 240ms ease,padding 240ms ease,border-color 240ms ease}
 #inventory-panel.inventory-collapsed{height:0;padding-top:0;padding-bottom:0;border-color:transparent;opacity:0;transform:translate(-50%,24px);pointer-events:none}
 .inventory-head{height:38px;min-height:38px;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;color:#efc76a;font:600 11px Cinzel,Georgia,serif}
 .inventory-toggle{display:grid;justify-items:center;gap:1px;padding:0;border:0;background:transparent;color:#efc76a;line-height:1.1}
@@ -45,6 +45,8 @@ h3,h1{font-family:Cinzel,Georgia,serif;margin:0 0 6px;letter-spacing:.5px}
 .inventory-slot{box-sizing:border-box;position:relative;min-width:0;min-height:0;aspect-ratio:1;background:#2a1e17;border:1px solid #80634f;border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;padding:4px;color:#f3e9db;overflow:hidden}
 .inventory-slot .item-icon{display:block;width:80%;height:80%;min-height:0;object-fit:contain;image-rendering:pixelated}
 .inventory-slot .item-count{position:absolute;right:4px;bottom:3px;color:#efc76a;font:700 8px/1 system-ui,sans-serif}
+.inventory-item,.equipment-slot[draggable="true"]{cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+.inventory-item:active,.equipment-slot[draggable="true"]:active{cursor:grabbing}
 .equipment-slot{border-color:#9b7c56;background:#34251b}
 .equipment-label{position:absolute;bottom:3px;left:2px;right:2px;color:#d8bd8e;font:600 7px/1 Cinzel,Georgia,serif;pointer-events:none}
 .equipment-slot .item-icon{width:74%;height:74%;margin-top:-5px}
@@ -131,7 +133,7 @@ button{cursor:pointer;background:#2a3550}button:hover:not(:disabled){background:
 .mobile-stick .nub{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px;border-radius:50%;background:rgba(255,255,255,.28);border:2px solid rgba(255,255,255,.38);box-shadow:0 3px 10px #0008}
 .mobile-label{position:absolute;inset:0;display:grid;place-items:center;color:#fff9;font-size:10px;text-transform:uppercase;letter-spacing:1px;pointer-events:none}
 #mobile-dock{position:absolute;left:50%;bottom:env(safe-area-inset-bottom,0px);transform:translateX(-50%);width:min(420px,calc(100vw - 12px));display:flex;align-items:center;justify-content:center;gap:6px;pointer-events:none}
-#mobile-buttons{position:relative;left:auto;bottom:auto;transform:none;flex:1 1 auto;min-width:0;width:auto;max-width:245px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;pointer-events:auto}
+#mobile-buttons{position:relative;left:auto;bottom:auto;transform:none;flex:1 1 auto;min-width:0;width:auto;max-width:245px;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;pointer-events:auto}
 #mobile-buttons button{height:36px;min-width:0;padding:2px 1px;display:grid;align-content:center;justify-items:center;gap:1px;border:1px solid #80634f;border-radius:7px;background:rgba(58,43,36,.96);color:#efc76a;box-shadow:0 2px 7px #0008;touch-action:none}
 #mobile-buttons button:active{transform:scale(.96);background:#604831}
 #mobile-buttons button span{font:700 11px Cinzel,Georgia,serif}
